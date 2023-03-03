@@ -26,12 +26,20 @@ class App:
         self.timer_id = None
         self.interval = 100 # Time between captures in ms
 
-        # Display preview
+        # Display Video Feed in GUI
+        self.update()
+
+    def update(self):
         frame = self.camera.get_frame()
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        image = Image.fromarray(frame)
-        self.photo = ImageTk.PhotoImage(image)
-        self.preview_label.configure(image=self.photo)
+
+        if frame is not None:
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            image = Image.fromarray(frame)
+            self.photo = ImageTk.PhotoImage(image)
+            self.preview_label.configure(image=self.photo)
+
+        self.window.after(50, self.update)
+
 
 
     def start_capture(self):
