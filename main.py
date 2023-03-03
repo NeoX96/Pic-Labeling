@@ -18,13 +18,14 @@ class MainApplication(tk.Tk):
         self.entry_interval = tk.Entry(self, bg='#333333', fg='white')
         self.button = tk.Button(self, text="Start Capture", command=self.start_capture, bg='#00FF00', fg='black')
         
-        self.label_image.pack(pady=10)
-        self.entry_image.pack(pady=10)
-        self.label_interval.pack(pady=10)
-        self.entry_interval.pack(pady=10)
-        self.button.pack(pady=10)
+        self.label_image.pack( pady=(30, 1) )
+        self.entry_image.pack(pady=(0, 20))
+        self.label_interval.pack(pady=0)
+        self.entry_interval.pack(pady=0)
+        self.button.pack(pady=30)
 
-        self.video_capture.pack(pady=10)
+        self.video_capture.pack(pady=30, padx=30)
+
 
     def start_capture(self):
         label = self.entry_image.get()
