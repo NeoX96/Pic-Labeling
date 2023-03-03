@@ -36,7 +36,7 @@ class VideoCapture(tk.Frame):
             ret, frame = self.cap.read()
             if ret:
                 if self.cropping:
-                    self.cropped_frame = frame[self.y1+3:self.y2-3, self.x1+3:self.x2-3]
+                    self.cropped_frame = frame[self.y1+2:self.y2-2, self.x1+2:self.x2-2]
                     cv2.rectangle(frame, (self.x1, self.y1), (self.x2, self.y2), (0, 255, 0), 2)
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 frame = np.array(frame)
