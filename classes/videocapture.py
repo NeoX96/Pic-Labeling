@@ -5,11 +5,11 @@ from tkinter import Canvas
 from PIL import Image, ImageTk
 
 class VideoCapture(tk.Frame):
-    def __init__(self, master, width=1920, height=1080, bg='black'):
-        tk.Frame.__init__(self, master, width=width, height=height, bg=bg)
+    def __init__(self, master, bg='black'):
+        tk.Frame.__init__(self, master, bg=bg)
         self.master = master
-        self.width = width
-        self.height = height
+        self.width = None
+        self.height = None
         self.bg = bg
         self.cap = None
         self.video_feed = None
@@ -21,13 +21,20 @@ class VideoCapture(tk.Frame):
         self.cropped_frame = None
         
         self.canvas = Canvas(self, bg=self.bg, cursor='cross')
+
+
+        self.cap = cv2.VideoCapture(0)
+        self.video_feed = self.canvas.create_image(0, 0, image=None, anchor=tk.NW)
+
+        self.width = self.cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+        self.height = self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+        self.canvas.config(width=self.width, height=self.height)
+
         self.canvas.pack(fill=tk.BOTH, expand=True)
         self.canvas.bind("<Button-1>", self.on_mouse_down)
         self.canvas.bind("<B1-Motion>", self.on_mouse_move)
         self.canvas.bind("<ButtonRelease-1>", self.on_mouse_up)
 
-        self.cap = cv2.VideoCapture(0)
-        self.video_feed = self.canvas.create_image(0, 0, image=None, anchor=tk.NW)
         self.update()
 
     
