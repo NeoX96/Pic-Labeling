@@ -18,6 +18,8 @@ class VideoCapture(tk.Frame):
         self.y1 = None
         self.x2 = None
         self.y2 = None
+        self.canvas_height = None
+        self.canvas_width = None
         self.cropped_frame = None
         
         self.canvas = Canvas(self, bg=self.bg, cursor='cross')
@@ -26,9 +28,13 @@ class VideoCapture(tk.Frame):
         self.cap = cv2.VideoCapture(0)
         self.video_feed = self.canvas.create_image(0, 0, image=None, anchor=tk.NW)
 
-        self.width = self.cap.get(cv2.CAP_PROP_FRAME_WIDTH)
-        self.height = self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
-        self.canvas.config(width=self.width, height=self.height)
+        self.width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        self.height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        aspect_ratio = self.width / self.height
+
+        self.canvas_width = 600
+        self.canvas_height = int(self.canvas_width / aspect_ratio)
+        self.canvas.config(width=self.canvas_width, height=self.canvas_height)
 
         self.canvas.pack(fill=tk.BOTH, expand=True)
         self.canvas.bind("<Button-1>", self.on_mouse_down)
@@ -43,25 +49,29 @@ class VideoCapture(tk.Frame):
             ret, frame = self.cap.read()
             if ret:
                 if self.cropping:
-                    self.cropped_frame = frame[self.y1+2:self.y2-2, self.x1+2:self.x2-2]
+                    self.cropped_frame = frame[int(self.y1)+2:int(self.y2)-2, int(self.x1)+2:int(self.x2)-2]
                     cv2.rectangle(frame, (self.x1, self.y1), (self.x2, self.y2), (0, 255, 0), 2)
+                
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 frame = np.array(frame)
                 frame = Image.fromarray(frame)
+                frame = frame.resize((self.canvas_width, self.canvas_height), Image.ANTIALIAS)
                 frame = ImageTk.PhotoImage(frame)
+
                 self.canvas.itemconfig(self.video_feed, image=frame)
                 self.canvas.image = frame
         self.after(30, self.update)
 
+
     def on_mouse_down(self, event):
-        self.x1 = event.x
-        self.y1 = event.y
+        self.x1 = int(event.x * (self.width / self.canvas_width))
+        self.y1 = int(event.y * (self.height / self.canvas_height))
 
     def on_mouse_move(self, event):
-        self.x2 = event.x
-        self.y2 = event.y
+        self.x2 = int(event.x * (self.width / self.canvas_width))
+        self.y2 = int(event.y * (self.height / self.canvas_height))
 
     def on_mouse_up(self, event):
-        self.x2 = event.x
-        self.y2 = event.y
+        self.x2 = int(event.x * (self.width / self.canvas_width))
+        self.y2 = int(event.y * (self.height / self.canvas_height))
         self.cropping = True
