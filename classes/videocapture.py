@@ -70,8 +70,13 @@ class VideoCapture(tk.Frame):
                             int(self.y1 * height / original_height)+2:int(self.y2 * height / original_height)-2,
                             int(self.x1 * width / original_width)+2:int(self.x2 * width / original_width)-2
                         ]
-                        cv2.rectangle(frame, (int(self.x1 * width / original_width), int(self.y1 * height / original_height)), 
-                              (int(self.x2 * width / original_width), int(self.y2 * height / original_height)), (0, 255, 0), 2)
+                        if not self.cropping:
+                            cv2.rectangle(frame, (int(self.x1 * width / original_width), int(self.y1 * height / original_height)), 
+                                        (int(self.x2 * width / original_width), int(self.y2 * height / original_height)), (0, 0, 0), 2)
+                        else:
+                            cv2.rectangle(frame, (int(self.x1 * width / original_width), int(self.y1 * height / original_height)), 
+                                        (int(self.x2 * width / original_width), int(self.y2 * height / original_height)), (0, 255, 0), 2)
+
                 
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 frame = np.array(frame)
@@ -82,6 +87,11 @@ class VideoCapture(tk.Frame):
                 self.canvas.itemconfig(self.video_feed, image=frame)
                 self.canvas.image = frame
         self.after(30, self.update)
+
+    def reset_crop(self):
+        self.cropping = False
+        self.x1, self.y1, self.x2, self.y2 = 0, 0, 0, 0
+
 
 
 

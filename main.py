@@ -35,6 +35,11 @@ class MainApplication(tk.Tk):
 
         self.p_label = tk.Label(self.resolution_frame, text="p", bg='#2E2E2E', fg='white')
         self.x_label = tk.Label(self.resolution_frame, text="x", bg='#2E2E2E', fg='white')
+
+        # reset crop
+        self.reset_button = tk.Button(self, text="Reset Crop", command=self.reset_crop, bg='#FFFF00', fg='black')
+        
+
         
         # Pack the widgets
         self.label_image.pack(pady=(30, 1))
@@ -42,6 +47,7 @@ class MainApplication(tk.Tk):
         self.label_interval.pack(pady=0)
         self.entry_interval.pack(pady=0)
         self.button.pack(pady=30)
+        self.reset_button.pack(pady=10)
 
 
         # resolution frame
@@ -65,6 +71,10 @@ class MainApplication(tk.Tk):
         self.entry_interval.insert(0, "200")
         # Start updating the video capture widget
         self.video_capture.start_update()
+
+    def reset_crop(self):
+        self.video_capture.reset_crop()
+
 
     def validate_resolution_callback(self, *args):
         """Validate the entered width value and calculate the height based on the aspect ratio of the camera."""
