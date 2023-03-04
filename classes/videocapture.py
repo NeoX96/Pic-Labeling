@@ -5,6 +5,11 @@ from tkinter import Canvas
 from PIL import Image, ImageTk
 
 class VideoCapture(tk.Frame):
+    """
+    A Tkinter Frame widget that displays video feed from a camera using OpenCV.
+    The frame can be resized based on the user's input and the video feed can be cropped using the mouse. 
+    """
+
     def __init__(self, master, bg='black'):
         tk.Frame.__init__(self, master, bg=bg)
         self.master = master
@@ -42,9 +47,12 @@ class VideoCapture(tk.Frame):
         self.canvas.bind("<ButtonRelease-1>", self.on_mouse_up)
 
     def start_update(self):
+        """Start the video feed update loop."""
         self.update()
     
     def update(self):
+        """Update the video feed in the canvas."""
+
         if self.cap.isOpened():
             ret, frame = self.cap.read()
             if ret:
@@ -78,14 +86,26 @@ class VideoCapture(tk.Frame):
 
 
     def on_mouse_down(self, event):
+        """ Handles the event when the mouse button is pressed down in the canvas widget.
+            Sets the x1 and y1 coordinates to the location of the mouse click in the canvas widget, converted to the corresponding coordinates in the frame
+        """
         self.x1 = int(event.x * (self.width / self.canvas_width))
         self.y1 = int(event.y * (self.height / self.canvas_height))
 
     def on_mouse_move(self, event):
+        """ Handles the event when the mouse is moved while the mouse button is pressed down in the canvas widget.
+            Sets the x2 and y2 coordinates to the location of the mouse click in the canvas widget, converted to the corresponding coordinates in the frame
+        """
         self.x2 = int(event.x * (self.width / self.canvas_width))
         self.y2 = int(event.y * (self.height / self.canvas_height))
 
     def on_mouse_up(self, event):
+        """
+        Handles the event when the mouse button is released in the canvas widget
+        Sets the x2 and y2 coordinates to the location of the mouse in the canvas widget, converted to the corresponding coordinates in the frame
+        Sets the cropping flag to True, indicating that the user has selected a region to be cropped
+        """
+
         self.x2 = int(event.x * (self.width / self.canvas_width))
         self.y2 = int(event.y * (self.height / self.canvas_height))
         self.cropping = True

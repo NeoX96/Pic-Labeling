@@ -2,6 +2,10 @@ import os
 import cv2
 
 class ImageProcessing:
+    """
+    Konstruktor, um eine Instanz der ImageProcessing-Klasse zu erstellen.
+    @param master: Hauptfenster, in dem das Video angezeigt wird.
+    """
     def __init__(self, master):
         self.master = master
         self.label = ""
@@ -13,6 +17,9 @@ class ImageProcessing:
 
 
     def start_capture(self):
+        """
+        Startet den Bildaufnahmeprozess. Überprüft, ob ein Label für die Bilder eingegeben wurde und ob der Ordner für die Bilder bereits existiert. 
+        """
         if not self.label:
             return
         
@@ -23,6 +30,10 @@ class ImageProcessing:
         self.capture_images()
 
     def capture_images(self):
+        """
+        Speichert das aktuelle Bild in einem Ordner mit dem Label als Name.
+        """
+
         ret, frame = self.master.video_capture.cap.read()
         if ret:
             if self.should_stop_capture:
@@ -45,5 +56,8 @@ class ImageProcessing:
             self.master.after(self.interval, self.capture_images)
 
     def stop_capture(self):
+        """
+        Stoppt den Bildaufnahmeprozess.
+        """
         self.should_stop_capture = True
         self.master.after_cancel(self.capture_images)
