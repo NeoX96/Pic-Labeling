@@ -35,10 +35,10 @@ class VideoCapture(tk.Frame):
 
         self.width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         self.height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        aspect_ratio = self.width / self.height
+        self.aspect_ratio = self.width / self.height
 
         self.canvas_width = 600
-        self.canvas_height = int(self.canvas_width / aspect_ratio)
+        self.canvas_height = int(self.canvas_width / self.aspect_ratio)
         self.canvas.config(width=self.canvas_width, height=self.canvas_height)
 
         self.canvas.pack(fill=tk.BOTH, expand=True)
@@ -65,7 +65,7 @@ class VideoCapture(tk.Frame):
                     height = int(height_entry_value)
                     frame = cv2.resize(frame, (width, height))
 
-                    if self.cropping:
+                    if self.x1 is not None and self.y1 is not None and self.x2 is not None and self.y2 is not None:
                         self.cropped_frame = frame[
                             int(self.y1 * height / original_height)+2:int(self.y2 * height / original_height)-2,
                             int(self.x1 * width / original_width)+2:int(self.x2 * width / original_width)-2
@@ -85,9 +85,6 @@ class VideoCapture(tk.Frame):
                 # get color pick from input field
                 color = self.master.color_format_variable.get()
 
-                # Q: is there a default option in the match statement?
-                # A: https://stackoverflow.com/questions/60208/replacements-for-switch-statement-in-python
-
                 match color:
                     case 'RGB':
                         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -101,6 +98,7 @@ class VideoCapture(tk.Frame):
                         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
                 self.processed_frame = frame
+                
                 frame = np.array(frame)
                 frame = Image.fromarray(frame)
                 frame = frame.resize((self.canvas_width, self.canvas_height), Image.ANTIALIAS)
@@ -120,15 +118,28 @@ class VideoCapture(tk.Frame):
         """ Handles the event when the mouse button is pressed down in the canvas widget.
             Sets the x1 and y1 coordinates to the location of the mouse click in the canvas widget, converted to the corresponding coordinates in the frame
         """
-        self.x1 = int(event.x * (self.width / self.canvas_width))
-        self.y1 = int(event.y * (self.height / self.canvas_height))
+        if abs(event.x - self.canvas_width) <= 5:
+            self.cursor = "sb_h_double_arrow"
+            self.canvas.config(cursor=self.cursor)
+        else:
+            self.cursor = "cross"
+            self.canvas.config(cursor=self.cursor)
+            self.x1 = int(event.x * (self.width / self.canvas_width))
+            self.y1 = int(event.y * (self.height / self.canvas_height))
 
     def on_mouse_move(self, event):
         """ Handles the event when the mouse is moved while the mouse button is pressed down in the canvas widget.
             Sets the x2 and y2 coordinates to the location of the mouse click in the canvas widget, converted to the corresponding coordinates in the frame
         """
-        self.x2 = int(event.x * (self.width / self.canvas_width))
-        self.y2 = int(event.y * (self.height / self.canvas_height))
+        if self.cursor == "sb_h_double_arrow":
+            if event.x >= 200:
+                self.canvas_width = event.x
+                self.canvas.config(width=self.canvas_width)
+                self.canvas_height = int(self.canvas_width / self.aspect_ratio)
+                self.canvas.config(width=self.canvas_width, height=self.canvas_height)
+        else:
+            self.x2 = int(event.x * (self.width / self.canvas_width))
+            self.y2 = int(event.y * (self.height / self.canvas_height))
 
     def on_mouse_up(self, event):
         """
@@ -136,7 +147,10 @@ class VideoCapture(tk.Frame):
         Sets the x2 and y2 coordinates to the location of the mouse in the canvas widget, converted to the corresponding coordinates in the frame
         Sets the cropping flag to True, indicating that the user has selected a region to be cropped
         """
+        self.cursor = "cross"
+        self.canvas.config(cursor=self.cursor)
 
-        self.x2 = int(event.x * (self.width / self.canvas_width))
-        self.y2 = int(event.y * (self.height / self.canvas_height))
-        self.cropping = True
+        if self.cursor != "sb_h_double_arrow":
+            self.x2 = int(event.x * (self.width / self.canvas_width))
+            self.y2 = int(event.y * (self.height / self.canvas_height))
+            self.cropping = True

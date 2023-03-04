@@ -11,7 +11,7 @@ class MainApplication(tk.Tk):
         self.config(bg='#2E2E2E')
 
         # set minimum size of window (width, height)
-        self.minsize(680, 820)
+        self.minsize(550, 550)
         
         self.video_capture = VideoCapture(self)
         self.image_processing = ImageProcessing(self)
