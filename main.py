@@ -9,6 +9,9 @@ class MainApplication(tk.Tk):
         tk.Tk.__init__(self, *args, **kwargs)
         self.title("Image Capture Tool")
         self.config(bg='#2E2E2E')
+
+        # set min size of window
+        self.minsize(680, 700)
         
         self.video_capture = VideoCapture(self)
         self.image_processing = ImageProcessing(self)
@@ -39,6 +42,7 @@ class MainApplication(tk.Tk):
 
         self.width_entry.insert(0, str(int(self.video_capture.cap.get(cv2.CAP_PROP_FRAME_WIDTH))))
         self.height_entry.insert(0, str(int(self.video_capture.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))))
+        self.entry_interval.insert(0, "200")
 
 
 
