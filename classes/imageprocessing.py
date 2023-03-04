@@ -25,6 +25,7 @@ class ImageProcessing:
         
         if not os.path.exists(f"captures/{self.label}"):
             os.makedirs(f"captures/{self.label}")
+            self.counter = 1
         
         self.should_stop_capture = False
         self.capture_images()
