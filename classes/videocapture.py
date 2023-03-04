@@ -76,6 +76,12 @@ class VideoCapture(tk.Frame):
                         else:
                             cv2.rectangle(frame, (int(self.x1 * width / original_width), int(self.y1 * height / original_height)), 
                                         (int(self.x2 * width / original_width), int(self.y2 * height / original_height)), (0, 255, 0), 2)
+                            
+                            if self.x1 > self.x2:
+                                self.x1, self.x2 = self.x2, self.x1
+                            if self.y1 > self.y2:
+                                self.y1, self.y2 = self.y2, self.y1
+                                                          
 
                 
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
