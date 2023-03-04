@@ -44,13 +44,19 @@ class ImageProcessing:
             self.height = int(self.master.height_entry.get())
 
 
+
+
             if self.master.video_capture.cropping:
                 frame = self.master.video_capture.cropped_frame
             else:
                 frame = cv2.resize(frame, (self.width, self.height))
 
 
-            filename = f"{self.label}_{self.counter}.png"
+            selected_format = self.master.file_format_variable.get()
+            
+            # Speichert das Bild im ausgewählten Format, label und counter als Dateinamen
+            filename = f"{self.label}_{self.counter}.{selected_format}"
+
             path = os.path.join("captures", self.label, filename)
             cv2.imwrite(path, frame)
             self.counter += 1
