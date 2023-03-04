@@ -19,10 +19,15 @@ class MainApplication(tk.Tk):
         # Image label entry
         self.label_image = tk.Label(self, text="Enter Image Label:", bg='#2E2E2E', fg='white')
         self.entry_image = tk.Entry(self, bg='#333333', fg='white')
-        # Capture interval entry
+        
+
         self.label_interval = tk.Label(self, text="Enter Capture Interval (ms):", bg='#2E2E2E', fg='white')
         self.entry_interval = tk.Entry(self, bg='#333333', fg='white')
-        self.button = tk.Button(self, text="Start Capture", command=self.start_capture, bg='#00FF00', fg='black')
+
+        # Start capture button
+        self.start_capture_frame = tk.Frame(self, bg='#2E2E2E')
+        self.button = tk.Button(self.start_capture_frame, text="Start Capture", command=self.start_capture, bg='#00FF00', fg='black')
+
 
         # Resolution frame
         self.resolution_frame = tk.Frame(self, bg='#2E2E2E')
@@ -39,7 +44,6 @@ class MainApplication(tk.Tk):
         # reset crop
         self.reset_button = tk.Button(self, text="Reset Crop", command=self.reset_crop, bg='#FFFF00', fg='black')
         
-
         
         # Pack the widgets
         self.label_image.pack(pady=(30, 1))
@@ -48,6 +52,9 @@ class MainApplication(tk.Tk):
         self.entry_interval.pack(pady=0)
         self.button.pack(pady=30)
         self.reset_button.pack(pady=10)
+
+        self.start_capture_frame.pack(pady=5)
+        self.button.pack(side=tk.LEFT, padx=5)
 
 
         # resolution frame
@@ -69,11 +76,19 @@ class MainApplication(tk.Tk):
         self.height_entry.insert(0, str(int(self.video_capture.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))))
         # Insert a default value of 200 into the interval entry widget
         self.entry_interval.insert(0, "200")
+
+
         # Start updating the video capture widget
         self.video_capture.start_update()
 
+
     def reset_crop(self):
         self.video_capture.reset_crop()
+
+    def update_counter(self):
+        if not self.stop_counter:
+            self.button.config(text="Stop Capture: " + str(self.image_processing.counter))
+            self.after(200, self.update_counter)
 
 
     def validate_resolution_callback(self, *args):
@@ -114,6 +129,8 @@ class MainApplication(tk.Tk):
     def start_capture(self):
         """Start capturing images and save them to the images folder."""
         label = self.entry_image.get()
+        self.stop_counter = False
+
 
 
         if label:
@@ -122,14 +139,17 @@ class MainApplication(tk.Tk):
                 self.image_processing.interval = int(interval)
             self.image_processing.label = label
             self.image_processing.start_capture()
-            self.button.config(text="Stop Capture", command=self.stop_capture, bg='#FF0000')
+            self.button.config(text="Stop Capture: " + str(self.image_processing.counter), command=self.stop_capture, bg='#FF0000')
+            self.update_counter()
         else:
             messagebox.showerror("Error", "Please enter a label for the image.")
 
     def stop_capture(self):
         """Stop capturing images."""
         self.image_processing.stop_capture()
+        self.stop_counter = True
         self.button.config(text="Start Capture", command=self.start_capture, bg='#00FF00')
+
 
 if __name__ == "__main__":
     app = MainApplication()
