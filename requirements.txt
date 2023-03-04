@@ -1,6 +1,5 @@
+tkinter
 customtkinter
 opencv-python
-imutils
 pillow
 numpy
-scikit-image
