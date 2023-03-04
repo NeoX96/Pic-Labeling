@@ -28,14 +28,16 @@ class ImageProcessing:
             if self.should_stop_capture:
                 return
             
-            if self.master.video_capture.cropping:
-                frame = self.master.video_capture.cropped_frame
-
-            
             self.width = int(self.master.width_entry.get())
             self.height = int(self.master.height_entry.get())
 
-            frame = cv2.resize(frame, (self.width, self.height))
+
+            if self.master.video_capture.cropping:
+                frame = self.master.video_capture.cropped_frame
+            else:
+                frame = cv2.resize(frame, (self.width, self.height))
+
+
             filename = f"{self.label}_{self.counter}.png"
             path = os.path.join("captures", self.label, filename)
             cv2.imwrite(path, frame)
