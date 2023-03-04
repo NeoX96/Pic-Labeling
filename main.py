@@ -29,17 +29,34 @@ class MainApplication(tk.Tk):
         self.button = tk.Button(self.start_capture_frame, text="Start Capture", command=self.start_capture, bg='#00FF00', fg='black')
 
 
-        # Resolution frame
-        self.resolution_frame = tk.Frame(self, bg='#2E2E2E')
-        self.resolution_label = tk.Label(self.resolution_frame, text="Resolution:", bg='#2E2E2E', fg='white')
-        self.width_entry = tk.Entry(self.resolution_frame, bg='#333333', fg='white', width=5)
+        # Options frame
+
+        # Resolution
+        self.options_frame = tk.Frame(self, bg='#2E2E2E')
+        self.resolution_label = tk.Label(self.options_frame, text="Resolution:", bg='#2E2E2E', fg='white')
+        self.width_entry = tk.Entry(self.options_frame, bg='#333333', fg='white', width=5)
         self.width_entry.config(validate="key", validatecommand=(self.register(self.validate_resolution_callback), '%P'))
 
-        self.height_entry = tk.Entry(self.resolution_frame, bg='#333333', fg='black', width=5)
+        self.height_entry = tk.Entry(self.options_frame, bg='#333333', fg='black', width=5)
         self.height_entry.config(validate="key", validatecommand=(self.register(self.validate_resolution_callback), '%P'))
 
-        self.p_label = tk.Label(self.resolution_frame, text="p", bg='#2E2E2E', fg='white')
-        self.x_label = tk.Label(self.resolution_frame, text="x", bg='#2E2E2E', fg='white')
+        self.p_label = tk.Label(self.options_frame, text="p", bg='#2E2E2E', fg='white')
+        self.x_label = tk.Label(self.options_frame, text="x", bg='#2E2E2E', fg='white')
+
+        # File format
+        self.file_format_label = tk.Label(self.options_frame, text="File format:", bg='#2E2E2E', fg='white')
+        self.file_format_variable = tk.StringVar(self)
+        self.file_format_variable.set("jpg") # default value
+        self.file_format_options = tk.OptionMenu(self.options_frame, self.file_format_variable, "jpg", "jpeg", "png", "bmp", "tiff")
+
+        # Color format, rgb, grayscale or black and white
+        self.color_format_label = tk.Label(self.options_frame, text="Color format:", bg='#2E2E2E', fg='white')
+        self.color_format_variable = tk.StringVar(self)
+        self.color_format_variable.set("RGB") # default value
+        self.color_format_options = tk.OptionMenu(self.options_frame, self.color_format_variable, "RGB", "Grayscale")
+
+
+
 
         # reset crop
         self.reset_button = tk.Button(self, text="Reset Crop", command=self.reset_crop, bg='#FFFF00', fg='black')
@@ -57,13 +74,28 @@ class MainApplication(tk.Tk):
         self.button.pack(side=tk.LEFT, padx=5)
 
 
-        # resolution frame
-        self.resolution_frame.pack(pady=5)
+        # options frame
+        self.options_frame.pack(pady=5)
+
+            # color format
+        self.color_format_label.pack(side=tk.LEFT, padx=5)
+        self.color_format_options.pack(side=tk.LEFT, padx=(5, 40))
+        
+
+          # resolution
         self.resolution_label.pack(side=tk.LEFT, padx=5)
         self.height_entry.pack(side=tk.LEFT, padx=0)
         self.x_label.pack(side=tk.LEFT, padx=0)
         self.width_entry.pack(side=tk.LEFT, padx=0)
         self.p_label.pack(side=tk.LEFT, padx=0)
+
+          # file format
+        self.file_format_options.pack(side=tk.RIGHT, padx=0)
+        self.file_format_label.pack(side=tk.RIGHT, padx=(40, 5))
+
+
+        
+        
 
         # Pack the video capture widget
         self.video_capture.pack(pady=30, padx=30)
