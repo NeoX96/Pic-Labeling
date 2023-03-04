@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 captures/
+tempCodeRunnerFile.py
 
 # C extensions
 *.so
