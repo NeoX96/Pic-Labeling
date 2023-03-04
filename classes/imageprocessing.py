@@ -29,7 +29,7 @@ class ImageProcessing:
                 frame = self.master.video_capture.cropped_frame
             filename = f"{self.label}_{self.counter}.png"
             path = os.path.join("captures", self.label, filename)
-            cv2.imwrite(path, cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+            cv2.imwrite(path, frame)
             self.counter += 1
             self.master.after(self.interval, self.capture_images)
 
