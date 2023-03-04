@@ -53,7 +53,7 @@ class MainApplication(tk.Tk):
         self.color_format_label = tk.Label(self.options_frame, text="Color format:", bg='#2E2E2E', fg='white')
         self.color_format_variable = tk.StringVar(self)
         self.color_format_variable.set("RGB") # default value
-        self.color_format_options = tk.OptionMenu(self.options_frame, self.color_format_variable, "RGB", "Grayscale")
+        self.color_format_options = tk.OptionMenu(self.options_frame, self.color_format_variable, "RGB", "Grayscale", "Black/White")
 
 
 
