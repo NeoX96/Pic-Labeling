@@ -35,32 +35,32 @@ class ImageProcessing:
         Speichert das aktuelle Bild in einem Ordner mit dem Label als Name.
         """
 
-        ret, frame = self.master.video_capture.cap.read()
-        if ret:
-            if self.should_stop_capture:
-                return
+        frame = self.master.video_capture.processed_frame
+        
+        if self.should_stop_capture:
+            return
             
-            self.width = int(self.master.width_entry.get())
-            self.height = int(self.master.height_entry.get())
+        self.width = int(self.master.width_entry.get())
+        self.height = int(self.master.height_entry.get())
 
 
 
 
-            if self.master.video_capture.cropping:
-                frame = self.master.video_capture.cropped_frame
-            else:
-                frame = cv2.resize(frame, (self.width, self.height))
+        if self.master.video_capture.cropping:
+            frame = self.master.video_capture.cropped_frame
+        else:
+            frame = cv2.resize(frame, (self.width, self.height))
 
 
-            selected_format = self.master.file_format_variable.get()
+        selected_format = self.master.file_format_variable.get()
             
-            # Speichert das Bild im ausgewählten Format, label und counter als Dateinamen
-            filename = f"{self.label}_{self.counter}.{selected_format}"
+        # Speichert das Bild im ausgewählten Format, label und counter als Dateinamen
+        filename = f"{self.label}_{self.counter}.{selected_format}"
 
-            path = os.path.join("captures", self.label, filename)
-            cv2.imwrite(path, frame)
-            self.counter += 1
-            self.master.after(self.interval, self.capture_images)
+        path = os.path.join("captures", self.label, filename)
+        cv2.imwrite(path, frame)
+        self.counter += 1
+        self.master.after(self.interval, self.capture_images)
 
     def stop_capture(self):
         """
