@@ -64,6 +64,23 @@ class VideoCapture(tk.Frame):
                     width = int(width_entry_value)
                     height = int(height_entry_value)
                     frame = cv2.resize(frame, (width, height))
+                    
+                    # get color pick from input field
+                    self.color = self.master.color_format_variable.get()
+
+                    match self.color:
+                        case 'RGB':
+                            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                        case 'Grayscale':
+                            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                        case 'Black/White':
+                            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                            frame = cv2.threshold(frame, 127, 255, cv2.THRESH_BINARY)[1]
+
+                        case _: # default
+                            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+                    self.processed_frame = frame
 
                     if self.cropping:
                         self.cropped_frame = frame[
@@ -82,25 +99,6 @@ class VideoCapture(tk.Frame):
                             if self.y1 > self.y2:
                                 self.y1, self.y2 = self.y2, self.y1
 
-                # get color pick from input field
-                color = self.master.color_format_variable.get()
-
-                # Q: is there a default option in the match statement?
-                # A: https://stackoverflow.com/questions/60208/replacements-for-switch-statement-in-python
-
-                match color:
-                    case 'RGB':
-                        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                    case 'Grayscale':
-                        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                    case 'Black/White':
-                        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                        frame = cv2.threshold(frame, 127, 255, cv2.THRESH_BINARY)[1]
-
-                    case _:
-                        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-                self.processed_frame = frame
                 frame = np.array(frame)
                 frame = Image.fromarray(frame)
                 frame = frame.resize((self.canvas_width, self.canvas_height), Image.ANTIALIAS)
