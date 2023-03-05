@@ -79,7 +79,7 @@ class VideoCapture(tk.Frame):
                         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
                 # resize the frame if the user has entered valid values in the width and height entry fields
-                if width_entry_value.isdigit() and height_entry_value.isdigit() and int(width_entry_value) > 20 and int(height_entry_value) > 10:
+                if width_entry_value.isdigit() and height_entry_value.isdigit() and int(width_entry_value) > 19 and int(height_entry_value) > 10:
                     width = int(width_entry_value)
                     height = int(height_entry_value)
                     frame = cv2.resize(frame, (width, height))
