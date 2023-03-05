@@ -56,32 +56,38 @@ class VideoCapture(tk.Frame):
         if self.cap.isOpened():
             ret, frame = self.cap.read()
             if ret:
+                # get the width and height of the frame
                 original_width = self.cap.get(cv2.CAP_PROP_FRAME_WIDTH)
                 original_height = self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
                 width_entry_value = self.master.width_entry.get()
                 height_entry_value = self.master.height_entry.get()
+
+                # get color pick from input field
+                self.color = self.master.color_format_variable.get()
+
+                # switch case for color format
+                match self.color:
+                    case 'RGB':
+                        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                    case 'Grayscale':
+                        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                    case 'Black/White':
+                        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                        frame = cv2.threshold(frame, 127, 255, cv2.THRESH_BINARY)[1]
+
+                    case _: # default
+                        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+                # resize the frame if the user has entered valid values in the width and height entry fields
                 if width_entry_value.isdigit() and height_entry_value.isdigit() and int(width_entry_value) > 20 and int(height_entry_value) > 10:
                     width = int(width_entry_value)
                     height = int(height_entry_value)
                     frame = cv2.resize(frame, (width, height))
                     
-                    # get color pick from input field
-                    self.color = self.master.color_format_variable.get()
-
-                    match self.color:
-                        case 'RGB':
-                            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                        case 'Grayscale':
-                            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                        case 'Black/White':
-                            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                            frame = cv2.threshold(frame, 127, 255, cv2.THRESH_BINARY)[1]
-
-                        case _: # default
-                            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
+                    # save processed frame
                     self.processed_frame = frame
 
+                    # if cropping is enabled, draw a rectangle on the frame
                     if self.cropping:
                         self.cropped_frame = frame[
                             int(self.y1 * height / original_height)+1:int(self.y2 * height / original_height)-1,
@@ -94,24 +100,30 @@ class VideoCapture(tk.Frame):
                             cv2.rectangle(frame, (int(self.x1 * width / original_width), int(self.y1 * height / original_height)), 
                                         (int(self.x2 * width / original_width), int(self.y2 * height / original_height)), (0, 255, 0), 1)
                             
+                            # swap the coordinates if the user drags the mouse from bottom right to top left
                             if self.x1 > self.x2:
                                 self.x1, self.x2 = self.x2, self.x1
                             if self.y1 > self.y2:
                                 self.y1, self.y2 = self.y2, self.y1
 
+                # convert the frame to a PIL image and resize it to fit the canvas
                 frame = np.array(frame)
                 frame = Image.fromarray(frame)
                 frame = frame.resize((self.canvas_width, self.canvas_height), Image.ANTIALIAS)
                 frame = ImageTk.PhotoImage(frame)
 
+                # update the video feed in the canvas
                 self.canvas.itemconfig(self.video_feed, image=frame)
                 self.canvas.image = frame
+
+        # call this function again in 30 milliseconds
         self.after(30, self.update)
 
+
     def reset_crop(self):
+        """ Resets the cropping variables to their default values """
         self.cropping = False
         self.x1, self.y1, self.x2, self.y2 = None, None, None, None
-
 
 
     def on_mouse_down(self, event):
