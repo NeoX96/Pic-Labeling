@@ -37,24 +37,21 @@ class ImageProcessing:
 
         frame = self.master.video_capture.processed_frame
         
-        # Bug?? weil ich bereits in der Klasse VideoCapture das Bild in RGB umgewandelt habe, im Canvas wird es richtig angezeigt, aber hier nicht mehr
-        if self.master.video_capture.color == "RGB":
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        
         if self.should_stop_capture:
             return
             
         self.width = int(self.master.width_entry.get())
         self.height = int(self.master.height_entry.get())
 
-
-
-
         if self.master.video_capture.cropping:
             frame = self.master.video_capture.cropped_frame
         else:
             frame = cv2.resize(frame, (self.width, self.height))
 
+
+        # Bug?? weil ich bereits in der Klasse VideoCapture das Bild in RGB umgewandelt habe, im Canvas wird es richtig angezeigt, aber hier nicht mehr
+        if self.master.video_capture.color == "RGB":
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
         selected_format = self.master.file_format_variable.get()
             
