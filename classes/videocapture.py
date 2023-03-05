@@ -84,8 +84,8 @@ class VideoCapture(tk.Frame):
 
                     if self.cropping:
                         self.cropped_frame = frame[
-                            int(self.y1 * height / original_height)+2:int(self.y2 * height / original_height)-2,
-                            int(self.x1 * width / original_width)+2:int(self.x2 * width / original_width)-2
+                            int(self.y1 * height / original_height)+1:int(self.y2 * height / original_height)-1,
+                            int(self.x1 * width / original_width)+1:int(self.x2 * width / original_width)-1
                         ]
                         if not self.cropping:
                             cv2.rectangle(frame, (int(self.x1 * width / original_width), int(self.y1 * height / original_height)), 
