@@ -132,7 +132,7 @@ class MainApplication(tk.Tk):
             width = int(width_entry_value)
 
             # Check if the entered width is valid
-            if width <= self.video_capture.cap.get(cv2.CAP_PROP_FRAME_WIDTH) and width > 20:
+            if width <= self.video_capture.cap.get(cv2.CAP_PROP_FRAME_WIDTH) and width > 19:
                 # Calculate the height based on the aspect ratio of the camera
                 height = int(width / self.video_capture.cap.get(cv2.CAP_PROP_FRAME_WIDTH) * self.video_capture.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
                 # Make the height entry widget editable and insert the calculated height
