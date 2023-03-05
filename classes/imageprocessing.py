@@ -37,6 +37,10 @@ class ImageProcessing:
 
         frame = self.master.video_capture.processed_frame
         
+        # Bug?? weil ich bereits in der Klasse VideoCapture das Bild in RGB umgewandelt habe, im Canvas wird es richtig angezeigt, aber hier nicht mehr
+        if self.master.video_capture.color == "RGB":
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        
         if self.should_stop_capture:
             return
             
