@@ -189,7 +189,7 @@ class MainApplication(tk.Tk):
 
     def update_counter(self):
         if not self.stop_counter:
-            self.button.config(text="Stop Capture: " + str(self.image_processing.counter))
+            self.button.configure(text="Stop Capture: " + str(self.image_processing.counter))
             self.after(200, self.update_counter)
 
 
@@ -241,7 +241,7 @@ class MainApplication(tk.Tk):
                 self.image_processing.interval = int(interval)
             self.image_processing.label = label
             self.image_processing.start_capture()
-            self.button.config(text="Stop Capture: " + str(self.image_processing.counter), command=self.stop_capture, bg='#FF0000')
+            self.button.configure(text="Stop Capture: " + str(self.image_processing.counter), command=self.stop_capture, fg_color='#FF0000')
             self.update_counter()
         else:
             messagebox.showerror("Error", "Please enter a label for the image.")
@@ -250,7 +250,7 @@ class MainApplication(tk.Tk):
         """Stop capturing images."""
         self.image_processing.stop_capture()
         self.stop_counter = True
-        self.button.config(text="Start Capture", command=self.start_capture, bg='#00FF00')
+        self.button.configure(text="Start Capture", command=self.start_capture, fg_color="green")
 
 
 if __name__ == "__main__":
