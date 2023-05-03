@@ -1,8 +1,12 @@
 import tkinter as tk
+import customtkinter as ctk
+from customtkinter import CTkButton, set_default_color_theme
 from tkinter import messagebox
 import cv2
 from classes.videocapture import VideoCapture
 from classes.imageprocessing import ImageProcessing
+
+set_default_color_theme("dark-blue")
 
 class MainApplication(tk.Tk):
     def __init__(self, *args, **kwargs):
@@ -13,20 +17,88 @@ class MainApplication(tk.Tk):
         # set minimum size of window (width, height)
         self.minsize(680, 820)
         
+        self.init_buttons()
+
+    def init_buttons(self):
+        # Add title label
+        title_label = tk.Label(self, text="KI-MCR-Projekt", font=("Arial", 60))
+        title_label.pack(pady=(100, 0))
+
+        self.load_model_button = ctk.CTkButton(self, text="Load Model", command=self.load_model, font=("Arial", 40))
+        self.capture_images_button = ctk.CTkButton(self, text="Capture Images", command=self.init_main_gui, font=("Arial", 40))
+
+        self.load_model_button.configure(
+            corner_radius=15,
+            border_width=2,
+            border_spacing=2,
+            border_color="black",
+            font=("Arial", 40),
+            hover=True,
+            anchor="center"
+        )
+
+        self.capture_images_button.configure(
+            corner_radius=15,
+            border_width=2,
+            border_spacing=6,
+            border_color="black",
+            font=("Arial", 40),
+            hover=True,
+            anchor="center"
+        )
+
+        self.load_model_button.pack(pady=(200, 10))
+        self.capture_images_button.pack(pady=(10, 200))
+
+
+        # Add author label
+        author_label = tk.Label(self, text="by Kulcsar, Schmid, Schießl, Würfel", font=("Arial", 12), fg="gray")
+        author_label.pack(side=tk.RIGHT, padx=20, pady=10)
+
+
+
+
+
+    def load_model(self):
+        # Platzhalter für das Laden des Modells
+        print ("Model load GUI")
+        pass
+
+    def show_main_buttons(self):
+        """ Show the main buttons and hide the capture buttons. """
+        self.video_capture.stop_update()
+        for widget in self.winfo_children():
+            widget.pack_forget()
+
+        self.init_buttons()
+
+
+
+    def init_main_gui(self):
+        self.load_model_button.pack_forget()
+        self.capture_images_button.pack_forget()
+        # forget titel label and author label
+        for widget in self.winfo_children():
+            widget.pack_forget()
+
         self.video_capture = VideoCapture(self)
         self.image_processing = ImageProcessing(self)
 
+        # Back button
+        self.back_button = ctk.CTkButton(self, text="Back", command=self.show_main_buttons, fg_color="red")
+        self.back_button.pack(pady=(10, 30))
+
         # Image label entry
         self.label_image = tk.Label(self, text="Enter Image Label:", bg='#2E2E2E', fg='white')
-        self.entry_image = tk.Entry(self, bg='#333333', fg='white')
+        self.entry_image = ctk.CTkEntry(self)
         
 
         self.label_interval = tk.Label(self, text="Enter Capture Interval (ms):", bg='#2E2E2E', fg='white')
-        self.entry_interval = tk.Entry(self, bg='#333333', fg='white')
+        self.entry_interval = ctk.CTkEntry(self)
 
         # Start capture button
         self.start_capture_frame = tk.Frame(self, bg='#2E2E2E')
-        self.button = tk.Button(self.start_capture_frame, text="Start Capture", command=self.start_capture, bg='#00FF00', fg='black')
+        self.button = ctk.CTkButton(self.start_capture_frame, text="Start Capture", command=self.start_capture, fg_color="green")
 
 
         # Options frame
@@ -44,22 +116,20 @@ class MainApplication(tk.Tk):
         self.x_label = tk.Label(self.options_frame, text="x", bg='#2E2E2E', fg='white')
 
         # File format
-        self.file_format_label = tk.Label(self.options_frame, text="File format:", bg='#2E2E2E', fg='white')
-        self.file_format_variable = tk.StringVar(self)
-        self.file_format_variable.set("jpg") # default value
-        self.file_format_options = tk.OptionMenu(self.options_frame, self.file_format_variable, "jpg", "jpeg", "png", "bmp", "tiff")
+        self.file_format_label = ctk.CTkLabel(self.options_frame, text="File format:")
+        self.file_format_variable = ctk.StringVar(value="jpg") # default value
+        self.file_format_options = ctk.CTkOptionMenu(self.options_frame, variable=self.file_format_variable, values=["jpg", "jpeg", "png", "bmp", "tiff"])
 
         # Color format, rgb, grayscale or black and white
-        self.color_format_label = tk.Label(self.options_frame, text="Color format:", bg='#2E2E2E', fg='white')
-        self.color_format_variable = tk.StringVar(self)
-        self.color_format_variable.set("RGB") # default value
-        self.color_format_options = tk.OptionMenu(self.options_frame, self.color_format_variable, "RGB", "Grayscale", "Black/White")
+        self.color_format_label = ctk.CTkLabel(self.options_frame, text="Color format:")
+        self.color_format_variable = ctk.StringVar(value="RGB") # default value
+        self.color_format_options = ctk.CTkOptionMenu(self.options_frame, variable=self.color_format_variable, values=["RGB", "Grayscale", "Black/White"])
 
 
 
 
         # reset crop
-        self.reset_button = tk.Button(self, text="Reset Crop", command=self.reset_crop, bg='#FFFF00', fg='black')
+        self.reset_button = ctk.CTkButton(self, text="Reset Crop", command=self.reset_crop, fg_color="#FF9000")
         
         
         # Pack the widgets
@@ -136,21 +206,21 @@ class MainApplication(tk.Tk):
                 # Calculate the height based on the aspect ratio of the camera
                 height = int(width / self.video_capture.cap.get(cv2.CAP_PROP_FRAME_WIDTH) * self.video_capture.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
                 # Make the height entry widget editable and insert the calculated height
-                self.height_entry.config(state='normal')
+                self.height_entry.configure(state='normal')
                 self.height_entry.delete(0, tk.END)
                 self.height_entry.insert(0, str(height))
                 # Make the height entry widget read-only
-                self.height_entry.config(state='readonly')
+                self.height_entry.configure(state='readonly')
                 # Set the text color of the height entry widget to black
                 self.height_entry.config(fg='black')
             else:
                 # If the entered width is not valid, reset the width and height entry widgets to their previous values
                 self.width_entry.delete(0, tk.END)
                 self.width_entry.insert(0, str(int(self.video_capture.cap.get(cv2.CAP_PROP_FRAME_WIDTH))))
-                self.height_entry.config(state='normal')
+                self.height_entry.configure(state='normal')
                 self.height_entry.delete(0, tk.END)
                 self.height_entry.insert(0, str(int(self.video_capture.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))))
-                self.height_entry.config(state='readonly')
+                self.height_entry.configure(state='readonly')
         else:
             # If the entered value is not a digit, reset the width entry widget to its previous value
             self.width_entry.delete(0, tk.END)
