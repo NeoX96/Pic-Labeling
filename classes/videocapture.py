@@ -55,6 +55,8 @@ class VideoCapture(tk.Frame):
     def stop_update(self):
         """Stop the video feed update loop."""
         self.is_running = False
+        self.cap.release()
+        cv2.destroyAllWindows()
     
     def update(self):
         """Update the video feed in the canvas."""
