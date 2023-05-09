@@ -186,6 +186,7 @@ class MainApplication(tk.Tk):
         for widget in self.winfo_children():
             widget.pack_forget()
 
+        self.video_capture = VideoCapture(self)
         # Back button
         self.back_button = ctk.CTkButton(self, text="Back", command=self.show_main_buttons, fg_color="red")
         self.back_button.pack(pady=(10, 30))
@@ -241,6 +242,8 @@ class MainApplication(tk.Tk):
         self.loading_frame.pack(padx=20, pady=10, fill="x")
 
         self.load_model_button.pack(pady=10)
+        self.video_capture.start_update()
+
 
 
 
