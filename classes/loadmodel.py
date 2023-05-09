@@ -82,7 +82,7 @@ class LoadModel:
         self.class_names = open(self.master.txt_variable.get(), "r").readlines()
         print("Model loaded.")
         self.update()
-        self.canvas.pack(fill=tk.BOTH)
+        self.canvas.pack()
         self.master.load_model_button.configure(text="Load Model", fg_color="#FF9000")
 
 
