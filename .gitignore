@@ -9,6 +9,7 @@ tempCodeRunnerFile.py
 
 # Distribution / packaging
 .Python
+.vscode/
 env/
 build/
 develop-eggs/
