@@ -84,6 +84,7 @@ class LoadModel:
         self.update()
         self.canvas.pack()
         self.master.load_model_button.configure(text="Load Model", fg_color="#FF9000")
+        self.master.connect_button.configure(state="normal", fg_color="green")
 
 
 
@@ -110,4 +111,6 @@ class LoadModel:
             self.master.load_model_button.configure(state="normal")
 
 
-
+    def connect_to_arduino(self):
+        self.master.connect_button.configure(text="Connecting to Arduino ...")
+        pass

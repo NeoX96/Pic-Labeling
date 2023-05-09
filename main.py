@@ -208,12 +208,15 @@ class MainApplication(tk.Tk):
             elif file.endswith(".txt"):
                 self.txt_files.append(file)
 
-        self.loading_frame = ctk.CTkFrame(self)
+        self.load_connect_frame = ctk.CTkFrame(self)
 
         # create a label and a dropdown menu for selecting the .h5 file
         self.h5_frame = ctk.CTkFrame(self)
         self.h5_label = ctk.CTkLabel(self.h5_frame, text="Select .h5 file:")
-        self.load_model_button = ctk.CTkButton(self.loading_frame, text="Load Model", command=self.loadmodel.load_model, fg_color="#FF9000", state="disabled")
+
+        self.load_model_button = ctk.CTkButton(self.load_connect_frame, text="Load Model", command=self.loadmodel.load_model, state="disabled")
+        self.connect_button = ctk.CTkButton(self.load_connect_frame, text="Connect to Arduino", command=self.loadmodel.connect_to_arduino, fg_color="orange", state="disabled")
+
         if len(self.h5_files) == 0:
             self.h5_variable = ctk.StringVar(value="  No .h5 files found.  ")
         else:
@@ -232,9 +235,9 @@ class MainApplication(tk.Tk):
         self.browse_txt_button = ctk.CTkButton(self.txt_frame, text="Browse", command=self.loadmodel.browse_file_txt)
 
         if len(self.h5_files) == 0 or len(self.txt_files) == 0:
-            self.load_model_button.configure(state="disabled")
+            self.load_model_button.configure(state="disabled", fg_color="#FF6000")
         else:
-            self.load_model_button.configure(state="normal")
+            self.load_model_button.configure(state="normal", fg_color="#FF9000")
 
         # pack the widgets into the frames
         self.h5_label.pack(pady=10)
@@ -247,9 +250,10 @@ class MainApplication(tk.Tk):
 
         self.h5_frame.pack(padx=20, pady=10, fill="x")
         self.txt_frame.pack(padx=20, pady=10, fill="x")
-        self.loading_frame.pack(padx=20, pady=10, fill="x")
+        self.load_connect_frame.pack(padx=20, pady=10, fill="x")
 
         self.load_model_button.pack(pady=10)
+        self.connect_button.pack(pady=10)
 
 
 
