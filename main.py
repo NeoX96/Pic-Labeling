@@ -1,6 +1,6 @@
 import tkinter as tk
 import customtkinter as ctk
-from customtkinter import CTkButton, set_default_color_theme
+from customtkinter import set_default_color_theme
 from tkinter import messagebox
 import cv2
 from classes.videocapture import VideoCapture
@@ -25,7 +25,7 @@ class MainApplication(tk.Tk):
         title_label.pack(pady=(100, 0))
 
         self.load_model_button = ctk.CTkButton(self, text="Load Model", command=self.load_model, font=("Arial", 40))
-        self.capture_images_button = ctk.CTkButton(self, text="Capture Images", command=self.init_main_gui, font=("Arial", 40))
+        self.capture_images_button = ctk.CTkButton(self, text="Capture Images", command=self.init_capture_gui, font=("Arial", 40))
 
         self.load_model_button.configure(
             corner_radius=15,
@@ -74,7 +74,7 @@ class MainApplication(tk.Tk):
 
 
 
-    def init_main_gui(self):
+    def init_capture_gui(self):
         self.load_model_button.pack_forget()
         self.capture_images_button.pack_forget()
         # forget titel label and author label
