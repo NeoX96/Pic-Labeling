@@ -63,6 +63,11 @@ class MainApplication(tk.Tk):
         # if tkinter.tkapp has object video_capture, stop the video capture
         if hasattr(self, "video_capture"):
             self.video_capture.stop_update()
+        
+        # wenn self.loadmodel existiert, dann stoppe das laden des models
+        if hasattr(self, "loadmodel"):
+            self.loadmodel.stop_update()
+
             
         for widget in self.winfo_children():
             widget.pack_forget()
@@ -82,8 +87,9 @@ class MainApplication(tk.Tk):
         self.image_processing = ImageProcessing(self)
 
         # Back button
-        self.back_button = ctk.CTkButton(self, text="Back", command=self.show_main_buttons, fg_color="red")
-        self.back_button.pack(pady=(10, 30))
+        self.back_button = ctk.CTkButton(self, text="← Back", command=self.show_main_buttons, fg_color="red")
+        self.back_button.pack(side="top", anchor="nw", padx=10, pady=10)
+
 
         # Image label entry
         self.label_image = tk.Label(self, text="Enter Image Label:", bg='#2E2E2E', fg='white')
@@ -182,14 +188,14 @@ class MainApplication(tk.Tk):
 
     def init_loader_gui(self):
         """Initialize the GUI for load Model with filesearch and load button."""
-        self.loadmodel = LoadModel(self)
         for widget in self.winfo_children():
             widget.pack_forget()
 
-        self.video_capture = VideoCapture(self)
+        self.loadmodel = LoadModel(self)
         # Back button
-        self.back_button = ctk.CTkButton(self, text="Back", command=self.show_main_buttons, fg_color="red")
-        self.back_button.pack(pady=(10, 30))
+        self.back_button = ctk.CTkButton(self, text="← Back", command=self.show_main_buttons, fg_color="red")
+        self.back_button.pack(side="top", anchor="nw", padx=10, pady=10)
+
 
         # Find all .h5 and .txt files in directory
         self.h5_files = [] # empty list for .h5 files
@@ -207,12 +213,11 @@ class MainApplication(tk.Tk):
         # create a label and a dropdown menu for selecting the .h5 file
         self.h5_frame = ctk.CTkFrame(self)
         self.h5_label = ctk.CTkLabel(self.h5_frame, text="Select .h5 file:")
+        self.load_model_button = ctk.CTkButton(self.loading_frame, text="Load Model", command=self.loadmodel.load_model, fg_color="#FF9000", state="disabled")
         if len(self.h5_files) == 0:
             self.h5_variable = ctk.StringVar(value="  No .h5 files found.  ")
-            self.load_model_button = ctk.CTkButton(self.loading_frame, text="Load Model", command=self.loadmodel.load_model, fg_color="#FF9000", state="disabled")
         else:
             self.h5_variable = ctk.StringVar(value=self.h5_files[0]) # set the default value to the first .h5 file in the list
-            self.load_model_button.configure(state="normal")
         self.h5_dropdown = ctk.CTkOptionMenu(self.h5_frame, variable=self.h5_variable, values=self.h5_files)
         self.browse_h5_button = ctk.CTkButton(self.h5_frame, text="Browse", command=self.loadmodel.browse_file_h5)
 
@@ -221,12 +226,15 @@ class MainApplication(tk.Tk):
         self.txt_label = ctk.CTkLabel(self.txt_frame, text="Select .txt file:")
         if len(self.txt_files) == 0:
             self.txt_variable = ctk.StringVar(value="No .txt files found.")
-            self.load_model_button.configure(state="disabled")
         else:
             self.txt_variable = ctk.StringVar(value=self.txt_files[0]) # set the default value to the first .txt file in the list
-            self.load_model_button.configure(state="normal")
         self.txt_dropdown = ctk.CTkOptionMenu(self.txt_frame, variable=self.txt_variable, values=self.txt_files)
         self.browse_txt_button = ctk.CTkButton(self.txt_frame, text="Browse", command=self.loadmodel.browse_file_txt)
+
+        if len(self.h5_files) == 0 or len(self.txt_files) == 0:
+            self.load_model_button.configure(state="disabled")
+        else:
+            self.load_model_button.configure(state="normal")
 
         # pack the widgets into the frames
         self.h5_label.pack(pady=10)
@@ -242,7 +250,6 @@ class MainApplication(tk.Tk):
         self.loading_frame.pack(padx=20, pady=10, fill="x")
 
         self.load_model_button.pack(pady=10)
-        self.video_capture.start_update()
 
 
 
