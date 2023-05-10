@@ -64,6 +64,9 @@ class VideoCapture(tk.Frame):
             if self.cap.isOpened():
                 ret, frame = self.cap.read()
                 if ret:
+                    # flip frame to mirror the video feed
+                    frame = cv2.flip(frame, 1)
+
                     # get the width and height of the frame
                     original_width = self.cap.get(cv2.CAP_PROP_FRAME_WIDTH)
                     original_height = self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
