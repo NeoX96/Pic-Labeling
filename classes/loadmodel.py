@@ -38,6 +38,9 @@ class LoadModel:
         if self.cap.isOpened():
             ret, frame = self.cap.read()
             if ret:
+                # flip frame to mirror the video feed
+                frame = cv2.flip(frame, 1)
+                
                 # resize the input image to (224, 224) using OpenCV
                 resized_frame = cv2.resize(frame, (224, 224), interpolation=cv2.INTER_AREA)
                 resized_frame_canvas = cv2.resize(frame, (self.canvas_width, self.canvas_height), interpolation=cv2.INTER_AREA)
@@ -68,7 +71,7 @@ class LoadModel:
                 self.canvas.itemconfig(self.video_feed, image=frame_for_canvas)
                 self.canvas.image = frame_for_canvas
 
-                if self.connected:
+                if self.connected == True:
                     print("Commands sent to Arduino with prediction") 
                     pass
 
@@ -99,7 +102,8 @@ class LoadModel:
             self.update()
             self.canvas.pack()
             
-        
+        self.disconnect_from_arduino()
+
         self.master.load_model_button.configure(text="Load Model", fg_color="#FF9000")
         self.master.connect_button.configure(state="normal", fg_color="#026c45")
         self.check_arduino_port()
@@ -168,3 +172,11 @@ class LoadModel:
                 self.arduino_port = None
                 self.master.connect_button.configure(text="no Arduino connected", state="disabled")
            
+    def disconnect_from_arduino(self):
+        """Disconnect from Arduino."""
+    
+        if self.arduino_port != None:
+            self.arduino.close()
+
+        self.master.connect_button.configure(text="Connect to Arduino", fg_color="#026c45", state="normal")
+        self.connected = False
