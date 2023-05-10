@@ -8,6 +8,8 @@ import customtkinter as ctk
 import cv2
 import numpy as np
 from PIL import Image, ImageTk
+import serial
+import time
 
 class LoadModel:
     def __init__(self, master):
@@ -21,7 +23,7 @@ class LoadModel:
         self.height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         self.aspect_ratio = self.width / self.height
 
-        self.canvas_width = 800
+        self.canvas_width = 400
         self.canvas_height = int(self.canvas_width / self.aspect_ratio)
         self.canvas.config(width=self.canvas_width, height=self.canvas_height)
         
@@ -113,4 +115,16 @@ class LoadModel:
 
     def connect_to_arduino(self):
         self.master.connect_button.configure(text="Connecting to Arduino ...")
-        pass
+
+        arduino = serial.Serial(port='COM3', baudrate=115200, timeout=.5)
+        self.master.connect_button.configure(text="Connected", fg_color="green")
+
+        # if led is on, turn it off and vice-versa.
+        if arduino.readline() == b'1\r\n':
+            arduino.write(b'0')
+        else:
+            arduino.write(b'1')
+
+        
+
+        
