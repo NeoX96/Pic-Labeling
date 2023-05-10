@@ -9,10 +9,12 @@ import cv2
 import numpy as np
 from PIL import Image, ImageTk
 import serial
+import serial.tools.list_ports
 import time
 
 class LoadModel:
     def __init__(self, master):
+        """Initialize the LoadModel class."""
         self.master = master
         self.canvas = Canvas(self.master, bg="black", cursor='cross')
 
@@ -27,7 +29,7 @@ class LoadModel:
         self.canvas_height = int(self.canvas_width / self.aspect_ratio)
         self.canvas.config(width=self.canvas_width, height=self.canvas_height)
         
-        #
+        self.arduino_port = None
 
 
     def update(self):
@@ -76,19 +78,37 @@ class LoadModel:
         cv2.destroyAllWindows()
 
     def load_model(self):
-        """Load the selected model."""
+        """Load the selected model. Check for the Com Port of the Arduino - self.arduino_port
+            and if it is connected, enable the connect button.
+        """
         print("Loading model...")
         self.master.load_model_button.configure(text="... Loading ....", fg_color="green")
-        self.master.update()
+        
         self.model = load_model(self.master.h5_variable.get(), compile=False)
         self.class_names = open(self.master.txt_variable.get(), "r").readlines()
         print("Model loaded.")
-        self.update()
-        self.canvas.pack()
+
+        # check if canvas pack does not exist
+        if not self.canvas.winfo_ismapped():
+            self.master.update()
+            self.update()
+            self.canvas.pack()
+            
+        
         self.master.load_model_button.configure(text="Load Model", fg_color="#FF9000")
         self.master.connect_button.configure(state="normal", fg_color="#026c45")
 
-
+        self.myports = [tuple(p) for p in list(serial.tools.list_ports.comports())]
+        
+        # if in myports is arduino than write it to arduino_port
+        for port in self.myports:
+            if "Arduino" in port[1]:
+                self.arduino_port = port[0]
+                self.master.connect_button.configure(text="Connect to Arduino", state="normal")
+                break
+            else:
+                self.arduino_port = None
+                self.master.connect_button.configure(text="no Arduino connected", state="disabled")
 
 
 
@@ -114,17 +134,31 @@ class LoadModel:
 
 
     def connect_to_arduino(self):
+        """Connect to Arduino and send data to it.
+        If Arduino is not connected, disable the button.
+        """
+
         self.master.connect_button.configure(text="Connecting to Arduino ...")
+        self.myports = [tuple(p) for p in list(serial.tools.list_ports.comports())]
 
-        arduino = serial.Serial(port='COM3', baudrate=115200, timeout=.5)
-        self.master.connect_button.configure(text="Connected", fg_color="green")
+        for port in self.myports:
+            if "Arduino" in port[1]:
+                self.arduino_port = port[0]
+                self.master.connect_button.configure(text="Connect to Arduino", state="normal")
+                arduino = serial.Serial(port=self.arduino_port, baudrate=115200, timeout=.5)
+                self.master.connect_button.configure(text="Connected", fg_color="green", state="normal")
 
-        # if led is on, turn it off and vice-versa.
-        if arduino.readline() == b'1\r\n':
-            arduino.write(b'0')
-        else:
-            arduino.write(b'1')
+                # if led is on, turn it off and vice-versa.
+                if arduino.readline() == b'1\r\n':
+                    arduino.write(b'0')
+                else:
+                    arduino.write(b'1')
+                
 
+
+            else:
+                self.arduino_port = None
+                self.master.connect_button.configure(text="no Arduino connected", state="disabled")
+                
         
 
-        
