@@ -4,3 +4,5 @@ opencv-python
 pillow
 numpy
 tensorflow
+serial
+pyserial
