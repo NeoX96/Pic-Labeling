@@ -86,7 +86,7 @@ class LoadModel:
         self.update()
         self.canvas.pack()
         self.master.load_model_button.configure(text="Load Model", fg_color="#FF9000")
-        self.master.connect_button.configure(state="normal", fg_color="green")
+        self.master.connect_button.configure(state="normal", fg_color="#026c45")
 
 
 

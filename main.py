@@ -237,7 +237,7 @@ class MainApplication(tk.Tk):
         if len(self.h5_files) == 0 or len(self.txt_files) == 0:
             self.load_model_button.configure(state="disabled", fg_color="#FF6000")
         else:
-            self.load_model_button.configure(state="normal", fg_color="#FF9000")
+            self.load_model_button.configure(state="normal", fg_color="#026c45")
 
         # pack the widgets into the frames
         self.h5_label.pack(pady=10)
