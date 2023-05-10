@@ -30,6 +30,7 @@ class LoadModel:
         self.canvas.config(width=self.canvas_width, height=self.canvas_height)
         
         self.arduino_port = None
+        self.connected = None
 
 
     def update(self):
@@ -67,6 +68,10 @@ class LoadModel:
                 self.canvas.itemconfig(self.video_feed, image=frame_for_canvas)
                 self.canvas.image = frame_for_canvas
 
+                if self.connected:
+                    print("Commands sent to Arduino with prediction") 
+                    pass
+
         # call this function again in 30 milliseconds
         self.master.after(30, self.update)
 
@@ -97,7 +102,9 @@ class LoadModel:
         
         self.master.load_model_button.configure(text="Load Model", fg_color="#FF9000")
         self.master.connect_button.configure(state="normal", fg_color="#026c45")
+        self.check_arduino_port()
 
+    def check_arduino_port(self):
         self.myports = [tuple(p) for p in list(serial.tools.list_ports.comports())]
         
         # if in myports is arduino than write it to arduino_port
@@ -105,7 +112,7 @@ class LoadModel:
             if "Arduino" in port[1]:
                 self.arduino_port = port[0]
                 self.master.connect_button.configure(text="Connect to Arduino", state="normal")
-                break
+
             else:
                 self.arduino_port = None
                 self.master.connect_button.configure(text="no Arduino connected", state="disabled")
@@ -145,20 +152,19 @@ class LoadModel:
             if "Arduino" in port[1]:
                 self.arduino_port = port[0]
                 self.master.connect_button.configure(text="Connect to Arduino", state="normal")
-                arduino = serial.Serial(port=self.arduino_port, baudrate=115200, timeout=.5)
+                self.arduino = serial.Serial(port=self.arduino_port, baudrate=115200, timeout=.5)
                 self.master.connect_button.configure(text="Connected", fg_color="green", state="normal")
 
                 # if led is on, turn it off and vice-versa.
-                if arduino.readline() == b'1\r\n':
-                    arduino.write(b'0')
+                if self.arduino.readline() == b'1\r\n':
+                    self.arduino.write(b'0')
                 else:
-                    arduino.write(b'1')
+                    self.arduino.write(b'1')
                 
+                self.connected = True
 
 
             else:
                 self.arduino_port = None
                 self.master.connect_button.configure(text="no Arduino connected", state="disabled")
-                
-        
-
+           
