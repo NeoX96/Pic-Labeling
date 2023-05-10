@@ -3,7 +3,9 @@ Informatik Techniker KI Projekt der Rudolf-Diesel-Fachschule in Nürnberg. 2022 
 
 ## Entwickler
 - Valentin
-- Denis
+- Thomas
+- Lisa
+- Rene
 
 ## Installation
 - Python 3.10.9 +
