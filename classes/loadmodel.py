@@ -40,16 +40,32 @@ class LoadModel:
             if ret:
                 # flip frame to mirror the video feed
                 frame = cv2.flip(frame, 1)
-                
-                # resize the input image to (224, 224) using OpenCV
-                resized_frame = cv2.resize(frame, (224, 224), interpolation=cv2.INTER_AREA)
-                resized_frame_canvas = cv2.resize(frame, (self.canvas_width, self.canvas_height), interpolation=cv2.INTER_AREA)
 
-                # convert the input image to a numpy array and normalize it
+                # Calculate the remaining height of the window
+                frame_height = self.master.back_button.winfo_height()
+                frame_height += self.master.h5_frame.winfo_height()
+                frame_height += self.master.txt_frame.winfo_height()
+                frame_height += self.master.load_connect_frame.winfo_height()
+                remaining_height = self.master.winfo_height() - frame_height - self.canvas_height + 80
+
+                # Calculate the maximum frame height based on the aspect ratio
+                max_frame_height = remaining_height
+
+                # Calculate the maximum frame width based on the maximum frame height and aspect ratio
+                max_frame_width = int(max_frame_height * self.aspect_ratio)
+
+                # Calculate the top padding to center the frame vertically
+                top_padding = (remaining_height - max_frame_height) // 2
+
+                # Resize the input image to the desired size
+                resized_frame = cv2.resize(frame, (self.input_width, self.input_height), interpolation=cv2.INTER_LANCZOS4)
+                resized_frame_canvas = cv2.resize(frame, (max_frame_width, max_frame_height), interpolation=cv2.INTER_LANCZOS4)
+
+                # Convert the input image to a numpy array and normalize it
                 normalized_frame = np.asarray(resized_frame, dtype=np.float32)
                 normalized_frame = (normalized_frame / 127.5) - 1
 
-                # pass the input image to the model and get the predictions
+                # Pass the input image to the model and get the predictions
                 prediction = self.model.predict(normalized_frame[np.newaxis, ...], verbose=0)
 
                 index = np.argmax(prediction)
@@ -59,24 +75,35 @@ class LoadModel:
                 # Add label to the bottom right corner of the image
                 frame_with_text = cv2.cvtColor(resized_frame_canvas, cv2.COLOR_BGR2RGB)
                 cv2.putText(frame_with_text, f"{class_name[2:]}: {np.round(confidence_score * 100)}%",
-                            (int(0.05 * self.canvas_width), int(0.95 * self.canvas_height)),
+                            (int(0.05 * max_frame_width), max_frame_height - int(0.05 * max_frame_height)),
                             cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
 
-
-                # convert the frame to a PIL image and then to PhotoImage
+                # Convert the frame to a PIL image and then to PhotoImage
                 pil_image = Image.fromarray(frame_with_text)
                 frame_for_canvas = ImageTk.PhotoImage(pil_image)
 
-                # update the canvas image
+                # Update the canvas image
+                self.canvas.config(width=max_frame_width, height=max_frame_height)
                 self.canvas.itemconfig(self.video_feed, image=frame_for_canvas)
                 self.canvas.image = frame_for_canvas
 
-                if self.connected == True:
-                    print("Commands sent to Arduino with prediction") 
-                    pass
+                if self.connected:
+                    # if led is on, turn it off and vice-versa.
+                    if self.arduino.readline() == b'1\r\n':
+                        self.arduino.write(b'0')
+                    else:
+                        self.arduino.write(b'1')
+                        print("Commands sent to Arduino with prediction")
 
-        # call this function again in 30 milliseconds
-        self.master.after(30, self.update)
+        # Calculate the delay based on the current FPS of the camera
+        fps = self.cap.get(cv2.CAP_PROP_FPS)
+        delay = int(1000 / fps)  # Convert FPS to delay in milliseconds
+
+        # Call this function again in 30 milliseconds
+        self.master.after(delay, self.update)
+
+
+
 
 
 
@@ -94,6 +121,10 @@ class LoadModel:
         
         self.model = load_model(self.master.h5_variable.get(), compile=False)
         self.class_names = open(self.master.txt_variable.get(), "r").readlines()
+        self.expected_input_shape = self.model.input_shape
+        self.input_height, self.input_width, self.input_channels = self.expected_input_shape[1:]  # Extrahiere Höhe, Breite und Kanäle
+
+
         print("Model loaded.")
 
         # check if canvas pack does not exist
@@ -156,17 +187,18 @@ class LoadModel:
             if "Arduino" in port[1]:
                 self.arduino_port = port[0]
                 self.master.connect_button.configure(text="Connect to Arduino", state="normal")
-                self.arduino = serial.Serial(port=self.arduino_port, baudrate=115200, timeout=.5)
+                self.arduino = serial.Serial(port=self.arduino_port, timeout=.5)
+
+                # Handshake with Arduino
+                self.arduino.setDTR(False)
+                time.sleep(1)
+                self.arduino.flushInput()
+                self.arduino.setDTR(True)
+                
                 self.master.connect_button.configure(text="Connected", fg_color="green", state="normal")
 
-                # if led is on, turn it off and vice-versa.
-                if self.arduino.readline() == b'1\r\n':
-                    self.arduino.write(b'0')
-                else:
-                    self.arduino.write(b'1')
-                
-                self.connected = True
-
+                self.arduino.open()
+                self.connected = self.arduino.is_open
 
             else:
                 self.arduino_port = None
