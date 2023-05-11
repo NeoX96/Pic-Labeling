@@ -46,13 +46,18 @@ class LoadModel:
                 frame_height += self.master.h5_frame.winfo_height()
                 frame_height += self.master.txt_frame.winfo_height()
                 frame_height += self.master.load_connect_frame.winfo_height()
-                remaining_height = self.master.winfo_height() - frame_height - self.canvas_height + 80
+                remaining_height = self.master.winfo_height() - frame_height - self.canvas_height + 100
 
                 # Calculate the maximum frame height based on the aspect ratio
                 max_frame_height = remaining_height
 
                 # Calculate the maximum frame width based on the maximum frame height and aspect ratio
                 max_frame_width = int(max_frame_height * self.aspect_ratio)
+
+                # Check if the width exceeds the maximum window width minus 30 pixels
+                if max_frame_width > self.master.winfo_width() - 30:
+                    max_frame_width = self.master.winfo_width() - 30
+                    max_frame_height = int(max_frame_width / self.aspect_ratio)
 
                 # Resize the input image to the desired size
                 resized_frame = cv2.resize(frame, (self.input_width, self.input_height), interpolation=cv2.INTER_LANCZOS4)
