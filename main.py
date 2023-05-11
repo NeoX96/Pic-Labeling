@@ -7,6 +7,7 @@ import cv2
 from classes.videocapture import VideoCapture
 from classes.imageprocessing import ImageProcessing
 from classes.loadmodel import LoadModel
+from classes.train import Trainer
 
 set_default_color_theme("dark-blue")
 
@@ -28,6 +29,7 @@ class MainApplication(tk.Tk):
 
         self.load_model_button = ctk.CTkButton(self, text="Load Model", command=self.init_loader_gui, font=("Arial", 40))
         self.capture_images_button = ctk.CTkButton(self, text="Capture Images", command=self.init_capture_gui, font=("Arial", 40))
+        self.train_model_button = ctk.CTkButton(self, text="Train Model", command=self.init_trainer_gui, font=("Arial", 40))
 
         self.load_model_button.configure(
             corner_radius=15,
@@ -49,8 +51,19 @@ class MainApplication(tk.Tk):
             anchor="center"
         )
 
+        self.train_model_button.configure(
+            corner_radius=15,
+            border_width=2,
+            border_spacing=6,
+            border_color="black",
+            font=("Arial", 40),
+            hover=True,
+            anchor="center"
+        )
+
         self.load_model_button.pack(pady=(200, 10))
         self.capture_images_button.pack(pady=(10, 200))
+        self.train_model_button.pack(pady=(10, 200))
 
 
         # Add author label
@@ -255,7 +268,19 @@ class MainApplication(tk.Tk):
         self.load_model_button.pack(pady=10)
         self.connect_button.pack(pady=10)
 
+    def init_trainer_gui(self):
+        """Initialize the GUI for the trainer."""
+        for widget in self.winfo_children():
+            widget.pack_forget()
 
+        self.trainer = Trainer(self)
+        
+        # Back button
+        self.back_button = ctk.CTkButton(self, text="← Back", command=self.show_main_buttons, fg_color="red")
+        self.back_button.pack(side="top", anchor="nw", padx=10, pady=10)
+
+
+    
 
 
     def reset_crop(self):

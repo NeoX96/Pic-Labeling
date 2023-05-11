@@ -54,9 +54,6 @@ class LoadModel:
                 # Calculate the maximum frame width based on the maximum frame height and aspect ratio
                 max_frame_width = int(max_frame_height * self.aspect_ratio)
 
-                # Calculate the top padding to center the frame vertically
-                top_padding = (remaining_height - max_frame_height) // 2
-
                 # Resize the input image to the desired size
                 resized_frame = cv2.resize(frame, (self.input_width, self.input_height), interpolation=cv2.INTER_LANCZOS4)
                 resized_frame_canvas = cv2.resize(frame, (max_frame_width, max_frame_height), interpolation=cv2.INTER_LANCZOS4)
