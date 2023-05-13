@@ -214,9 +214,9 @@ class LoadModel:
         """Thread function to send data to Arduino."""
         previous_index = -1  # Initialize with a different value
 
-        while not self.stop_connected_thread.is_set():
+        while not self.stop_connected_thread.is_set() and self.arduino.is_open:
             # Send data to Arduino if self.index has changed
-            if self.arduino.is_open and self.index != previous_index:
+            if self.index != previous_index:
                 data = str(self.index).encode()
                 self.arduino.write(data)
                 previous_index = self.index
