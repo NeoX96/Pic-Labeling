@@ -11,6 +11,7 @@ from PIL import Image, ImageTk
 import serial
 import serial.tools.list_ports
 import time
+import threading
 
 class LoadModel:
     def __init__(self, master):
@@ -30,7 +31,9 @@ class LoadModel:
         self.canvas.config(width=self.canvas_width, height=self.canvas_height)
         
         self.arduino_port = None
-        self.connected = None
+
+        self.connected_thread = None
+        self.stop_connected_thread = threading.Event()
 
 
     def update(self):
@@ -70,13 +73,13 @@ class LoadModel:
                 # Pass the input image to the model and get the predictions
                 prediction = self.model.predict(normalized_frame[np.newaxis, ...], verbose=0)
 
-                index = np.argmax(prediction)
-                class_name = self.class_names[index]
-                confidence_score = prediction[0][index]
+                self.index = np.argmax(prediction)
+                self.class_name = self.class_names[self.index]
+                self.confidence_score = prediction[0][self.index]
 
                 # Add label to the bottom right corner of the image
                 frame_with_text = cv2.cvtColor(resized_frame_canvas, cv2.COLOR_BGR2RGB)
-                cv2.putText(frame_with_text, f"{class_name[2:]}: {np.round(confidence_score * 100)}%",
+                cv2.putText(frame_with_text, f"{self.class_name[2:]}: {np.round(self.confidence_score * 100)}%",
                             (int(0.05 * max_frame_width), max_frame_height - int(0.05 * max_frame_height)),
                             cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
 
@@ -88,14 +91,6 @@ class LoadModel:
                 self.canvas.config(width=max_frame_width, height=max_frame_height)
                 self.canvas.itemconfig(self.video_feed, image=frame_for_canvas)
                 self.canvas.image = frame_for_canvas
-
-                if self.connected:
-                    # if led is on, turn it off and vice-versa.
-                    if self.arduino.readline() == b'1\r\n':
-                        self.arduino.write(b'0')
-                    else:
-                        self.arduino.write(b'1')
-                        print("Commands sent to Arduino with prediction")
 
         # Calculate the delay based on the current FPS of the camera
         fps = self.cap.get(cv2.CAP_PROP_FPS)
@@ -146,7 +141,7 @@ class LoadModel:
         
         # if in myports is arduino than write it to arduino_port
         for port in self.myports:
-            if "Arduino" in port[1]:
+            if "Arduino" or "Serielles USB-Gerät" in port[1]:
                 self.arduino_port = port[0]
                 self.master.connect_button.configure(text="Connect to Arduino", state="normal")
 
@@ -183,34 +178,49 @@ class LoadModel:
         """
 
         self.master.connect_button.configure(text="Connecting to Arduino ...")
-        self.myports = [tuple(p) for p in list(serial.tools.list_ports.comports())]
+        self.check_arduino_port()
 
-        for port in self.myports:
-            if "Arduino" in port[1]:
-                self.arduino_port = port[0]
-                self.master.connect_button.configure(text="Connect to Arduino", state="normal")
-                self.arduino = serial.Serial(port=self.arduino_port, timeout=.5)
+        if self.arduino_port != None:
+            self.master.connect_button.configure(text="Connect to Arduino", state="normal")
+            self.arduino = serial.Serial(port=self.arduino_port, baudrate=9600, timeout=.5)
 
-                # Handshake with Arduino
-                self.arduino.setDTR(False)
-                time.sleep(1)
-                self.arduino.flushInput()
-                self.arduino.setDTR(True)
-                
-                self.master.connect_button.configure(text="Connected", fg_color="green", state="normal")
-
+            if not self.arduino.is_open:
                 self.arduino.open()
-                self.connected = self.arduino.is_open
 
-            else:
-                self.arduino_port = None
-                self.master.connect_button.configure(text="no Arduino connected", state="disabled")
+
+            if self.arduino.is_open:
+                self.master.connect_button.configure(text="Connected", fg_color="green", state="disabled")
+
+                # Start the connected thread
+                self.connected_thread = threading.Thread(target=self.send_data_to_arduino)
+                self.connected_thread.start()
+            
+
+        else:
+            self.arduino_port = None
+            self.master.connect_button.configure(text="no Arduino connected", state="disabled")
            
     def disconnect_from_arduino(self):
         """Disconnect from Arduino."""
     
-        if self.arduino_port != None:
+        if self.arduino.is_open:
             self.arduino.close()
 
         self.master.connect_button.configure(text="Connect to Arduino", fg_color="#026c45", state="normal")
-        self.connected = False
+
+
+    
+    def send_data_to_arduino(self):
+        """Thread function to send data to Arduino."""
+        previous_index = -1  # Initialize with a different value
+
+        while not self.stop_connected_thread.is_set():
+            # Send data to Arduino if self.index has changed
+            if self.arduino.is_open and self.index != previous_index:
+                data = str(self.index).encode()
+                self.arduino.write(data)
+                previous_index = self.index
+
+                print(f"Sent data: {data}")
+
+            time.sleep(0.2)

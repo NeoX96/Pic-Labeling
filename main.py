@@ -80,6 +80,7 @@ class MainApplication(tk.Tk):
         # wenn self.loadmodel existiert, dann stoppe das laden des models
         if hasattr(self, "loadmodel"):
             self.loadmodel.stop_update()
+            self.loadmodel.disconnect_from_arduino()
 
             
         for widget in self.winfo_children():
