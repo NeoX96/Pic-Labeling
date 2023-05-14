@@ -278,18 +278,6 @@ class MainApplication(tk.Tk):
             widget.pack_forget()
 
         self.trainer = Trainer(self)
-        
-        # Back button
-        self.back_button = ctk.CTkButton(self, text="← Back", command=self.show_main_buttons, fg_color="red")
-        self.back_button.pack(side="top", anchor="nw", padx=10, pady=10)
-
-
-    def init_trainer_gui(self):
-        """Initialize the GUI for the trainer."""
-        for widget in self.winfo_children():
-            widget.pack_forget()
-
-        self.trainer = Trainer(self)
 
         # Back button
         self.back_button = ctk.CTkButton(self, text="← Back", command=self.show_main_buttons, fg_color="red")
