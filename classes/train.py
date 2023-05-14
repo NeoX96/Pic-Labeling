@@ -74,17 +74,23 @@ class Trainer:
 
         # Create the final model
         model = Model(inputs=base_model.input, outputs=predictions)
+        print("Model Summary:", model.summary())
 
         # Compile the model
         model.compile(optimizer=Adam(learning_rate=learning_rate),
                       loss='categorical_crossentropy',
                       metrics=['accuracy'])
 
+        # Calculate steps per epoch
+        steps_per_epoch = train_set.samples // batch_size
+
         # Train the model
-        model.fit(train_set, epochs=epochs)
+        model.fit(train_set, epochs=int(epochs), steps_per_epoch=int(steps_per_epoch))
 
         # Save the trained model
         model.save(self.model_file)
+
+
 
         print("Training completed.")
         self.master.start_training_button.configure(text="Start Training", state="normal")
