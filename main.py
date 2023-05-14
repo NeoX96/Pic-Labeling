@@ -343,6 +343,10 @@ class MainApplication(tk.Tk):
         self.dataset_entry.pack(pady=10)
         self.browse_dataset_button.pack(pady=10)
 
+        # search in the current directory for the dataset folder captures/
+        if os.path.isdir("captures"):
+            self.dataset_variable.set("captures")
+
         # Progress bar
         self.progress_frame = ctk.CTkFrame(self)
         self.progress_label = ctk.CTkLabel(self.progress_frame, text="Training Progress:")
