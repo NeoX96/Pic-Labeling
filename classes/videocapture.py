@@ -31,7 +31,7 @@ class VideoCapture(tk.Frame):
         self.canvas = Canvas(self, bg=self.bg, cursor='cross')
 
 
-        self.cap = cv2.VideoCapture(0)
+        self.cap = cv2.VideoCapture(self.master.videocamera, cv2.CAP_DSHOW)
         self.video_feed = self.canvas.create_image(0, 0, image=None, anchor=tk.NW)
 
         self.width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))

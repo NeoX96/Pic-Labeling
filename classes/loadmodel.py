@@ -19,7 +19,7 @@ class LoadModel:
         self.master = master
         self.canvas = Canvas(self.master, bg="black", cursor='cross')
 
-        self.cap = cv2.VideoCapture(0)
+        self.cap = cv2.VideoCapture(self.master.videocamera)
         self.video_feed = self.canvas.create_image(0, 0, image=None, anchor=tk.NW)
 
         self.width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -42,6 +42,7 @@ class LoadModel:
         if self.cap.isOpened():
             ret, frame = self.cap.read()
             if ret:
+
                 # flip frame to mirror the video feed
                 frame = cv2.flip(frame, 1)
 
