@@ -3,13 +3,13 @@
 #include <LiquidCrystal_I2C.h>
 
 Servo servo;
-int SPU = 2048;
+int SPU = 4096;
 Stepper Motor(SPU, 6, 4, 3, 5);
-LiquidCrystal_I2C lcd(0x27, 16, 2); // Adresse des LCD-Moduls und die Zeichenanzahl pro Zeile und Zeilenanzahl
+LiquidCrystal lcd(13, 12, 11, 10, 9, 8); // Adresse des LCD-Moduls und die Zeichenanzahl pro Zeile und Zeilenanzahl
 
 int previous_case = 0;    // Vorheriger Case-Wert
-const int ledPin = 2;     // Pin-Nummer der LED
-const int buttonPin = 12; // Pin-Nummer des Buttons
+const int ledPin = 1;     // Pin-Nummer der LED
+const int buttonPin = 2;  // Pin-Nummer des Buttons
 
 bool loopRunning = false; // Flag, um den Zustand der Loop anzuzeigen
 
@@ -23,7 +23,7 @@ void setup() {
     lcd.backlight();
 
     pinMode(ledPin, OUTPUT);          // Setze den LED-Pin als Ausgang
-    pinMode(buttonPin, INPUT_PULLUP); // Setze den Button-Pin als Eingang mit Pull-up-Widerstand
+    pinMode(buttonPin, INPUT_PULLUP); // // aktiviert den internen Pullup-Widerstand
 }
 
 
@@ -44,21 +44,24 @@ void loop() {
             if (eingabe != previous_case) {
                 switch (eingabe) {
                 case 1:
-                    servo.write(30);        // Drehe den Servo auf Position 1 (30 Grad)
+                    servo.write(90);        // Drehe den Servo auf Position 1 (30 Grad)
                     change_lcd_text("Rot"); // Schreibe "Rot" in das Display
                     blink_led(2);           // Blinken der LED für 3 Mal
+                    delay(1000)
                     break;
 
                 case 2:
-                    servo.write(60);         // Drehe den Servo auf Position 2 (60 Grad)
+                    servo.write(120);         // Drehe den Servo auf Position 2 (60 Grad)
                     change_lcd_text("Gelb"); // Schreibe "Gelb" in das Display
                     blink_led(2);            // Blinken der LED für 3 Mal
+                    delay(1000)
                     break;
 
                 case 3:
-                    servo.write(90);         // Drehe den Servo auf Position 3 (90 Grad)
+                    servo.write(150);         // Drehe den Servo auf Position 3 (90 Grad)
                     change_lcd_text("Grün"); // Schreibe "Grün" in das Display
                     blink_led(2);            // Blinken der LED für 3 Mal
+                    delay(1000)
                     break;
 
                 default:
@@ -120,12 +123,16 @@ bool debounceButton(int pin, int delayTime) {
         debounceTime = millis();
     }
 
-    if (millis() - debounceTime > delayTime) {
+    if ((millis() - debounceTime) > delayTime) {
         if (currentState != previousState) {
-        previousState = currentState;
-        return currentState == LOW;
+            previousState = currentState;
+
+            // nur dann "true" zurückgeben, wenn der Taster gedrückt ist (der Zustand ist LOW)
+            if (currentState == LOW) {
+                return true;
+            }
         }
     }
-    
+
     return false;
 }
