@@ -31,6 +31,7 @@ class LoadModel:
         self.canvas.config(width=self.canvas_width, height=self.canvas_height)
         
         self.arduino_port = None
+        self.arduino = None
 
         self.connected_thread = None
         self.stop_connected_thread = threading.Event()
@@ -202,9 +203,11 @@ class LoadModel:
            
     def disconnect_from_arduino(self):
         """Disconnect from Arduino."""
-    
-        if self.arduino.is_open:
-            self.arduino.close()
+
+        
+        if self.arduino != None:
+            if self.arduino.is_open:
+                self.arduino.close()
 
         self.master.connect_button.configure(text="Connect to Arduino", fg_color="#026c45", state="normal")
 
@@ -213,14 +216,15 @@ class LoadModel:
     def send_data_to_arduino(self):
         """Thread function to send data to Arduino."""
         previous_index = -1  # Initialize with a different value
+        
 
         while not self.stop_connected_thread.is_set() and self.arduino.is_open:
+            self.arduino.write(b'M')  # Send 'M' to signal that motor should start
             # Send data to Arduino if self.index has changed
             if self.index != previous_index:
-                data = str(self.index).encode()
+                data = str(self.index+1).encode()
                 self.arduino.write(data)
                 previous_index = self.index
 
                 print(f"Sent data: {data}")
-
-            time.sleep(0.2)
+            time.sleep(0.4)
