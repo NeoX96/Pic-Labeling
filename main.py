@@ -355,6 +355,11 @@ class MainApplication(tk.Tk):
         self.start_training_button = ctk.CTkButton(self, text="Start Training", command=self.trainer.start_training)
         self.start_training_button.pack(pady=10)
 
+    def update_epochs_progress(self, progress):
+        """Update the epochs progress."""
+        self.progress_bar.set(progress)
+        self.progress_bar.update()
+
     def update_batch_size(self, value):
         current_value = self.batch_size_slider.get()
         self.batch_size_value_label.configure(text=str(current_value))
