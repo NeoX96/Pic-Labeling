@@ -44,7 +44,7 @@ class MainApplication(tk.Tk):
         self.capture_images_button.configure(
             corner_radius=15,
             border_width=2,
-            border_spacing=6,
+            border_spacing=2,
             border_color="black",
             font=("Arial", 40),
             hover=True,
@@ -54,7 +54,7 @@ class MainApplication(tk.Tk):
         self.train_model_button.configure(
             corner_radius=15,
             border_width=2,
-            border_spacing=6,
+            border_spacing=2,
             border_color="black",
             font=("Arial", 40),
             hover=True,
@@ -62,8 +62,9 @@ class MainApplication(tk.Tk):
         )
 
         self.load_model_button.pack(pady=(200, 10))
-        self.capture_images_button.pack(pady=(10, 200))
-        self.train_model_button.pack(pady=(10, 200))
+        self.train_model_button.pack(pady=(10, 10))
+        self.capture_images_button.pack(pady=(10, 10))
+        
 
 
         # Add author label
