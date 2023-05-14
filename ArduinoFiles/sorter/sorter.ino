@@ -23,13 +23,12 @@ bool loopRunning = false; // Flag, um den Zustand der Loop anzuzeigen
 void setup()
 {
     servo.attach(7);
-    Motor.setSpeed(2);
+    Motor.setSpeed(6);
     Serial.begin(9600); // Starte serielle Kommunikation mit einer Baudrate von 9600
 
     // Initialisiere das LCD-Modul
     lcd.begin(16, 2);
     bool loopRunning = false;
-    eingabe = 1;
 
     // lcd write "Betriebsbereit"
     change_lcd_text("Betriebsbereit");
@@ -119,19 +118,24 @@ void loop()
                     {
                     case 1:
                         servo.write(90);        // Drehe den Servo auf Position 1 (30 Grad)
-                        change_lcd_text("Rot"); // Schreibe "Rot" in das Display
+                        change_lcd_text("Gruen"); // Schreibe "Rot" in das Display
                         Motor.step(5);
                         break;
 
                     case 2:
                         servo.write(120);        // Drehe den Servo auf Position 2 (60 Grad)
-                        change_lcd_text("Gelb"); // Schreibe "Gelb" in das Display
+                        change_lcd_text("Rot"); // Schreibe "Gelb" in das Display
                         Motor.step(5);
                         break;
 
                     case 3:
                         servo.write(150);        // Drehe den Servo auf Position 3 (90 Grad)
-                        change_lcd_text("Grün"); // Schreibe "Grün" in das Display
+                        change_lcd_text("Gelb"); // Schreibe "Grün" in das Display
+                        Motor.step(5);
+                        break;
+
+                    case 4:
+                        change_lcd_text("Leer");
                         Motor.step(5);
                         break;
                     }
