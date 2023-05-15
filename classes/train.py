@@ -5,11 +5,11 @@ import tkinter.filedialog as filedialog
 import threading
 import tensorflow as tf
 from tensorflow import keras
-from keras import layers
 from keras.applications import ResNet50
 from keras.layers import Dense, GlobalAveragePooling2D, Flatten
 from keras.preprocessing.image import ImageDataGenerator
 from PIL import Image
+
 class Trainer:
     def __init__(self, master):
         self.master = master
@@ -44,13 +44,15 @@ class Trainer:
 
         labels = os.listdir(dataset_folder)
         with open(self.labels_file, "w") as f:
-            f.write("\n".join(labels))
+            for index, label in enumerate(labels):
+                f.write(f"{index} {label}\n")
 
         # Derive input shape from images
         sample_image_path = os.path.join(dataset_folder, labels[0], os.listdir(os.path.join(dataset_folder, labels[0]))[0])
         sample_image = Image.open(sample_image_path)
         input_shape = sample_image.size + (3,)  # Add channel dimension
 
+        # Data processing and augmentation
         # Data processing and augmentation
         train_datagen = ImageDataGenerator(
             rescale=1./255,
@@ -71,8 +73,8 @@ class Trainer:
             shuffle=True
         )
 
-        # Load pre-trained ResNet50 model
-        base_model = tf.keras.applications.ResNet50(weights=None, include_top=False, input_shape=input_shape)
+        # Load pre-trained ResNet50 model 
+        base_model = tf.keras.applications.ResNet50(weights="imagenet", include_top=False, input_shape=input_shape)
 
         # Add custom classification layers
         x = base_model.output
@@ -96,20 +98,26 @@ class Trainer:
 
         # Configure GPU options
         gpus = tf.config.experimental.list_physical_devices('GPU')
+        print ("GPU: ", gpus)
         if gpus:
             tf.config.experimental.set_memory_growth(gpus[0], True)
             tf.config.experimental.set_visible_devices(gpus[0], 'GPU')
 
-        # Enable eager execution
-        tf.config.run_functions_eagerly(True)
 
+        # Convert the ImageDataGenerator to tf.data.Dataset
+        train_dataset = tf.data.Dataset.from_generator(
+            lambda: train_set,
+            output_signature=(
+                tf.TensorSpec(shape=(None, *input_shape), dtype=tf.float32),
+                tf.TensorSpec(shape=(None, len(labels)), dtype=tf.float32)
+            )
+        )
 
-
+        # Optimize data pipeline
+        train_dataset = train_dataset.cache().prefetch(tf.data.AUTOTUNE)
 
         # Train the model
-        model.fit(train_set, epochs=epochs, steps_per_epoch=steps_per_epoch)
-        
-
+        model.fit(train_dataset, epochs=epochs, steps_per_epoch=steps_per_epoch)
 
         # Update progress in GUI
         self.master.update_epochs_progress(100)
