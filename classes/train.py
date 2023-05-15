@@ -28,9 +28,10 @@ class Trainer:
 
     def train(self):
         # Apply configurations
-        batch_size = self.master.batch_size_slider.get()
-        epochs = self.master.epochs_slider.get()
-        learning_rate = self.master.learning_rate_slider.get()
+        batch_size = int(self.master.batch_size_variable.get())
+        epochs = int(self.master.epochs_slider.get())
+        learning_rate = float(self.master.learning_rate_slider.get())
+
 
         # Load dataset and create labels
         dataset_folder = self.master.dataset_variable.get()
@@ -84,8 +85,16 @@ class Trainer:
         # Calculate steps per epoch
         steps_per_epoch = train_set.samples // batch_size
 
+
         # Train the model
-        model.fit(train_set, epochs=int(epochs), steps_per_epoch=int(steps_per_epoch))
+        model.fit(train_set, epochs=epochs, steps_per_epoch=int(steps_per_epoch))
+
+        # Update progress in GUI
+        self.master.update_epochs_progress(100)
+
+        # Save the trained model
+        model.save(self.model_file)
+
 
         # Save the trained model
         model.save(self.model_file)
