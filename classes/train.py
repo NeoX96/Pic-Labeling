@@ -1,5 +1,6 @@
 import os
 import tkinter as tk
+from tkinter import messagebox
 import tkinter.filedialog as filedialog
 import threading
 from keras.applications import ResNet50
@@ -31,10 +32,17 @@ class Trainer:
         batch_size = int(self.master.batch_size_variable.get())
         epochs = int(self.master.epochs_slider.get())
         learning_rate = float(self.master.learning_rate_slider.get())
-
+        self.master.update_epochs_progress(0)
 
         # Load dataset and create labels
         dataset_folder = self.master.dataset_variable.get()
+
+        if not os.path.isdir(dataset_folder):
+            messagebox.showerror("Error", "Please select a valid dataset folder.")
+            self.training_in_progress = False
+            self.master.start_training_button.configure(text="Start Training", state="normal")
+            return
+
         labels = os.listdir(dataset_folder)
         with open(self.labels_file, "w") as f:
             f.write("\n".join(labels))
@@ -79,12 +87,11 @@ class Trainer:
 
         # Compile the model
         model.compile(optimizer=Adam(learning_rate=learning_rate),
-                      loss='categorical_crossentropy',
-                      metrics=['accuracy'])
+                    loss='categorical_crossentropy',
+                    metrics=['accuracy'])
 
         # Calculate steps per epoch
         steps_per_epoch = train_set.samples // batch_size
-
 
         # Train the model
         model.fit(train_set, epochs=epochs, steps_per_epoch=int(steps_per_epoch))
@@ -94,12 +101,6 @@ class Trainer:
 
         # Save the trained model
         model.save(self.model_file)
-
-
-        # Save the trained model
-        model.save(self.model_file)
-
-
 
         print("Training completed.")
         self.master.start_training_button.configure(text="Start Training", state="normal")

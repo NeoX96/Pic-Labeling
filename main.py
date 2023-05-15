@@ -361,6 +361,8 @@ class MainApplication(tk.Tk):
         self.progress_frame.pack(padx=20, pady=10, fill="x")
         self.progress_label.pack(pady=10)
         self.progress_bar.pack(pady=10)
+        self.progress_bar["value"] = 0
+        self.progress_bar.update()
 
         # Start training button
         self.start_training_button = ctk.CTkButton(self, text="Start Training", command=self.trainer.start_training)
