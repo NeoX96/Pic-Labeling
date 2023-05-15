@@ -1,8 +1,12 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
+
+# Project specific
 captures/
 tempCodeRunnerFile.py
+trained_model.h5
+labels.txt
 
 # C extensions
 *.so
