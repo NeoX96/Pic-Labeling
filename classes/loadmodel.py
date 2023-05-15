@@ -43,8 +43,11 @@ class LoadModel:
             ret, frame = self.cap.read()
             if ret:
 
-                # flip frame to mirror the video feed
+                # Flip frame to mirror the video feed
                 frame = cv2.flip(frame, 1)
+
+                # Convert the input image from BGR to RGB
+                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
                 # Calculate the remaining height of the window
                 frame_height = self.master.back_button.winfo_height()
@@ -65,8 +68,8 @@ class LoadModel:
                     max_frame_height = int(max_frame_width / self.aspect_ratio)
 
                 # Resize the input image to the desired size
-                resized_frame = cv2.resize(frame, (self.input_width, self.input_height), interpolation=cv2.INTER_LANCZOS4)
-                resized_frame_canvas = cv2.resize(frame, (max_frame_width, max_frame_height), interpolation=cv2.INTER_LANCZOS4)
+                resized_frame = cv2.resize(frame_rgb, (self.input_width, self.input_height), interpolation=cv2.INTER_LANCZOS4)
+                resized_frame_canvas = cv2.resize(frame_rgb, (max_frame_width, max_frame_height), interpolation=cv2.INTER_LANCZOS4)
 
                 # Convert the input image to a numpy array and normalize it
                 normalized_frame = np.asarray(resized_frame, dtype=np.float32)
@@ -79,15 +82,13 @@ class LoadModel:
                 self.class_name = self.class_names[self.index]
                 self.confidence_score = prediction[0][self.index]
 
-                # Add label to the bottom right corner of the image
-                frame_with_text = cv2.cvtColor(resized_frame_canvas, cv2.COLOR_BGR2RGB)
-                cv2.putText(frame_with_text, f"{self.class_name[2:]}: {np.round(self.confidence_score * 100)}%",
+
+                cv2.putText(resized_frame_canvas, f"{self.class_name[2:]}: {np.round(self.confidence_score * 100)}%",
                             (int(0.05 * max_frame_width), max_frame_height - int(0.05 * max_frame_height)),
                             cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
 
-
                 # Convert the frame to a PIL image and then to PhotoImage
-                pil_image = Image.fromarray(frame_with_text)
+                pil_image = Image.fromarray(resized_frame_canvas)
                 frame_for_canvas = ImageTk.PhotoImage(pil_image)
 
                 # Update the canvas image
@@ -97,6 +98,7 @@ class LoadModel:
 
         # Calculate the delay based on the current FPS of the camera
         fps = self.cap.get(cv2.CAP_PROP_FPS)
+
         delay = int(1000 / fps)  # Convert FPS to delay in milliseconds
 
         # Call this function again in 30 milliseconds
@@ -224,6 +226,7 @@ class LoadModel:
             # Send data to Arduino if self.index has changed and confidence score is >= 0.98
             if self.index != previous_index and self.confidence_score >= 0.99:
                 data = str(self.index+1).encode()
+                time.sleep(0.3)  # Additional delay of 1 second
                 self.arduino.write(data)
                 previous_index = self.index
 

@@ -20,6 +20,18 @@ int stepInterval = 1;           // Zeit zwischen den Schritten in Millisekunden
 
 bool loopRunning = false; // Flag, um den Zustand der Loop anzuzeigen
 
+void change_lcd_text(const char *text1, const char *text2 = NULL)
+{
+    lcd.clear();         // Lösche das Display
+    lcd.setCursor(0, 0); // Setze den Cursor auf die erste Zeile
+    lcd.print(text1);    // Schreibe den Text in die erste Zeile des Displays
+    
+    if (text2 != NULL) {
+        lcd.setCursor(0, 1); // Setze den Cursor auf die zweite Zeile
+        lcd.print(text2);    // Schreibe den Text in die zweite Zeile des Displays
+    }
+}
+
 void setup()
 {
     servo.attach(7);
@@ -31,7 +43,7 @@ void setup()
     bool loopRunning = false;
 
     // lcd write "Betriebsbereit"
-    change_lcd_text("Betriebsbereit");
+    change_lcd_text(" Betriebsbereit", "   HotStepper");
 
     pinMode(ledPin, OUTPUT); // Setze den LED-Pin als Ausgang
     digitalWrite(ledPin, LOW);
@@ -39,6 +51,10 @@ void setup()
     pinMode(buttonPin, INPUT_PULLUP);                                              // // aktiviert den internen Pullup-Widerstand
     attachInterrupt(digitalPinToInterrupt(buttonPin), handleButtonPress, FALLING); // Interrupt für den Button
 }
+
+
+
+
 
 void blink_led(int count, int delayTime = 200)
 {
@@ -118,19 +134,19 @@ void loop()
                     {
                     case 1:
                         servo.write(90);        // Drehe den Servo auf Position 1 (30 Grad)
-                        change_lcd_text("Gruen"); // Schreibe "Rot" in das Display
+                        change_lcd_text("Farbe", "Gelb"); // Schreibe "Rot" in das Display
                         Motor.step(5);
                         break;
 
                     case 2:
                         servo.write(120);        // Drehe den Servo auf Position 2 (60 Grad)
-                        change_lcd_text("Rot"); // Schreibe "Gelb" in das Display
+                        change_lcd_text("Farbe", "Grün"); // Schreibe "Gelb" in das Display
                         Motor.step(5);
                         break;
 
                     case 3:
                         servo.write(150);        // Drehe den Servo auf Position 3 (90 Grad)
-                        change_lcd_text("Gelb"); // Schreibe "Grün" in das Display
+                        change_lcd_text("Farbe", "Rot"); // Schreibe "Grün" in das Display
                         Motor.step(5);
                         break;
 
@@ -152,12 +168,6 @@ void loop()
     }
 }
 
-void change_lcd_text(const char *text)
-{
-    lcd.clear();         // Lösche das Display
-    lcd.setCursor(0, 0); // Setze den Cursor auf die erste Zeile
-    lcd.print(text);     // Schreibe den Text in das Display
-}
 
 void startLoop()
 {

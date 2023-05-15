@@ -16,7 +16,7 @@ class MainApplication(tk.Tk):
         tk.Tk.__init__(self, *args, **kwargs)
         self.title("Image Capture Tool")
         self.config(bg='#2E2E2E')
-        self.videocamera = 1
+        self.videocamera = 2
 
         # set minimum size of window (width, height)
         self.minsize(680, 820)
