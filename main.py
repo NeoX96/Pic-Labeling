@@ -285,53 +285,59 @@ class MainApplication(tk.Tk):
         self.back_button.pack(side="top", anchor="nw", padx=10, pady=10)
 
         # Training parameters
-        self.parameters_frame = ctk.CTkFrame(self)
+                
+        # Übergeordneter Frame für die Zentrierung und Füllung
+        self.parameters_outer_frame = ctk.CTkFrame(self)
+        self.parameters_outer_frame.pack(fill="x", padx=20, pady=10)
+
+        # Inneres Frame für den Inhalt
+        self.parameters_frame = ctk.CTkFrame(self.parameters_outer_frame)
+
         self.parameters_label = ctk.CTkLabel(self.parameters_frame, text="Training Parameters:")
 
         self.batch_size_label = ctk.CTkLabel(self.parameters_frame, text="Batch Size:")
-        self.batch_size_slider = ctk.CTkSlider(self.parameters_frame, from_=16, to=256, orientation="horizontal", command=self.update_batch_size)
-        self.batch_size_min_label = ctk.CTkLabel(self.parameters_frame, text="16")
-        self.batch_size_max_label = ctk.CTkLabel(self.parameters_frame, text="256")
-        self.batch_size_value_label = ctk.CTkLabel(self.parameters_frame, text="16")
+        self.batch_size_values = ["16", "32", "64", "128", "256", "512"]
+        self.batch_size_variable = ctk.StringVar(value="16")
+        self.batch_size_dropdown = ctk.CTkOptionMenu(self.parameters_frame, variable=self.batch_size_variable, values=self.batch_size_values)
+        self.batch_size_dropdown.configure(width=5)
+
 
         self.epochs_label = ctk.CTkLabel(self.parameters_frame, text="Epochs:")
         self.epochs_slider = ctk.CTkSlider(self.parameters_frame, from_=10, to=100, orientation="horizontal", command=self.update_epochs)
         self.epochs_min_label = ctk.CTkLabel(self.parameters_frame, text="10")
         self.epochs_max_label = ctk.CTkLabel(self.parameters_frame, text="100")
         self.epochs_value_label = ctk.CTkLabel(self.parameters_frame, text="10")
+        self.epochs_slider.set(10)
 
         self.learning_rate_label = ctk.CTkLabel(self.parameters_frame, text="Learning Rate:")
-        self.learning_rate_slider = ctk.CTkSlider(self.parameters_frame, from_=0.01, to=1.00, orientation="horizontal", command=self.update_learning_rate)
-        self.learning_rate_min_label = ctk.CTkLabel(self.parameters_frame, text="0.01")
+        self.learning_rate_slider = ctk.CTkSlider(self.parameters_frame, from_=0.0001, to=1.00, orientation="horizontal", command=self.update_learning_rate)
+        self.learning_rate_min_label = ctk.CTkLabel(self.parameters_frame, text="0.001")
         self.learning_rate_max_label = ctk.CTkLabel(self.parameters_frame, text="1.00")
-        self.learning_rate_value_label = ctk.CTkLabel(self.parameters_frame, text="0.01")
+        self.learning_rate_value_label = ctk.CTkLabel(self.parameters_frame, text="0.001")
+        self.learning_rate_slider.set(0.001)
 
 
-        self.batch_size_slider.configure(number_of_steps=240)
         self.epochs_slider.configure(number_of_steps=90)
-        self.learning_rate_slider.configure(number_of_steps=99)
+        self.learning_rate_slider.configure(number_of_steps=999)
 
 
-        self.parameters_frame.pack(padx=20, pady=10, fill="x")
+        self.parameters_frame.pack(padx=20, pady=10)
         self.parameters_label.grid(row=0, column=0, columnspan=4, pady=10)
 
-        self.batch_size_label.grid(row=1, column=0, pady=10)
-        self.batch_size_min_label.grid(row=1, column=1, padx=(0, 10))
-        self.batch_size_slider.grid(row=1, column=2, padx=(0, 10))
-        self.batch_size_max_label.grid(row=1, column=3)
-        self.batch_size_value_label.grid(row=1, column=4, padx=(10, 0))
+        self.batch_size_label.grid(row=1, column=1, pady=10)
+        self.batch_size_dropdown.grid(row=1, column=2, padx=(10, 10))
 
         self.epochs_label.grid(row=2, column=0, pady=10)
-        self.epochs_min_label.grid(row=2, column=1, padx=(0, 10))
-        self.epochs_slider.grid(row=2, column=2, padx=(0, 10))
+        self.epochs_min_label.grid(row=2, column=1, padx=(10, 10))
+        self.epochs_slider.grid(row=2, column=2, padx=(10, 10))
         self.epochs_max_label.grid(row=2, column=3)
-        self.epochs_value_label.grid(row=2, column=4, padx=(10, 0))
+        self.epochs_value_label.grid(row=2, column=4, padx=(10, 10))
 
-        self.learning_rate_label.grid(row=3, column=0, pady=10)
-        self.learning_rate_min_label.grid(row=3, column=1, padx=(0, 10))
-        self.learning_rate_slider.grid(row=3, column=2, padx=(0, 10))
+        self.learning_rate_label.grid(row=3, column=0, pady=10, padx=(10, 10))
+        self.learning_rate_min_label.grid(row=3, column=1, padx=(10, 10))
+        self.learning_rate_slider.grid(row=3, column=2, padx=(10, 10))
         self.learning_rate_max_label.grid(row=3, column=3)
-        self.learning_rate_value_label.grid(row=3, column=4, padx=(10, 0))
+        self.learning_rate_value_label.grid(row=3, column=4, padx=(10, 10))
 
         # Dataset selection
         self.dataset_frame = ctk.CTkFrame(self)
@@ -360,14 +366,13 @@ class MainApplication(tk.Tk):
         self.start_training_button = ctk.CTkButton(self, text="Start Training", command=self.trainer.start_training)
         self.start_training_button.pack(pady=10)
 
+
     def update_epochs_progress(self, progress):
         """Update the epochs progress."""
-        self.progress_bar.set(progress)
+        self.progress_bar["value"] = progress
         self.progress_bar.update()
 
-    def update_batch_size(self, value):
-        current_value = self.batch_size_slider.get()
-        self.batch_size_value_label.configure(text=str(current_value))
+
 
     def update_epochs(self, value):
         current_value = self.epochs_slider.get()
