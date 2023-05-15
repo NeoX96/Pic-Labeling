@@ -6,3 +6,4 @@ numpy
 tensorflow
 serial
 pyserial
+keras
