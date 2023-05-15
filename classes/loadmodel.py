@@ -85,6 +85,7 @@ class LoadModel:
                             (int(0.05 * max_frame_width), max_frame_height - int(0.05 * max_frame_height)),
                             cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
 
+
                 # Convert the frame to a PIL image and then to PhotoImage
                 pil_image = Image.fromarray(frame_with_text)
                 frame_for_canvas = ImageTk.PhotoImage(pil_image)
@@ -218,14 +219,14 @@ class LoadModel:
         """Thread function to send data to Arduino."""
         previous_index = -1  # Initialize with a different value
         
-
         while not self.stop_connected_thread.is_set() and self.arduino.is_open:
             self.arduino.write(b'M')  # Send 'M' to signal that motor should start
-            # Send data to Arduino if self.index has changed
-            if self.index != previous_index:
+            # Send data to Arduino if self.index has changed and confidence score is >= 0.98
+            if self.index != previous_index and self.confidence_score >= 0.99:
                 data = str(self.index+1).encode()
                 self.arduino.write(data)
                 previous_index = self.index
 
                 print(f"Sent data: {data}")
-            time.sleep(0.4)
+            
+            time.sleep(1)  # Additional delay of 1 second

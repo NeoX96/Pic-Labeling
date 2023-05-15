@@ -3,14 +3,13 @@ import tkinter as tk
 from tkinter import messagebox
 import tkinter.filedialog as filedialog
 import threading
+import tensorflow as tf
+from tensorflow import keras
+from keras import layers
 from keras.applications import ResNet50
-from keras.layers import Dense, GlobalAveragePooling2D
-from keras.models import Model
-from keras.optimizers import Adam
-from PIL import Image
+from keras.layers import Dense, GlobalAveragePooling2D, Flatten
 from keras.preprocessing.image import ImageDataGenerator
-
-
+from PIL import Image
 class Trainer:
     def __init__(self, master):
         self.master = master
@@ -73,28 +72,44 @@ class Trainer:
         )
 
         # Load pre-trained ResNet50 model
-        base_model = ResNet50(weights='imagenet', include_top=False, input_shape=input_shape)
+        base_model = tf.keras.applications.ResNet50(weights=None, include_top=False, input_shape=input_shape)
 
         # Add custom classification layers
         x = base_model.output
-        x = GlobalAveragePooling2D()(x)
-        x = Dense(256, activation='relu')(x)
-        predictions = Dense(len(labels), activation='softmax')(x)
+        x = tf.keras.layers.GlobalAveragePooling2D()(x)
+        x = tf.keras.layers.Flatten()(x)
+        x = tf.keras.layers.Dense(256, activation='relu')(x)
+        predictions = tf.keras.layers.Dense(len(labels), activation='softmax')(x)
 
         # Create the final model
-        model = Model(inputs=base_model.input, outputs=predictions)
-        print("Model Summary:", model.summary())
+        model = tf.keras.models.Model(inputs=base_model.input, outputs=predictions)
 
         # Compile the model
-        model.compile(optimizer=Adam(learning_rate=learning_rate),
-                    loss='categorical_crossentropy',
-                    metrics=['accuracy'])
+        model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate),
+                      loss='categorical_crossentropy',
+                      metrics=['accuracy'])
 
         # Calculate steps per epoch
-        steps_per_epoch = train_set.samples // batch_size
+        steps_per_epoch = max(len(train_set) // batch_size, 5)
+
+        print("TrainSet laenge: ", len(train_set))
+
+        # Configure GPU options
+        gpus = tf.config.experimental.list_physical_devices('GPU')
+        if gpus:
+            tf.config.experimental.set_memory_growth(gpus[0], True)
+            tf.config.experimental.set_visible_devices(gpus[0], 'GPU')
+
+        # Enable eager execution
+        tf.config.run_functions_eagerly(True)
+
+
+
 
         # Train the model
-        model.fit(train_set, epochs=epochs, steps_per_epoch=int(steps_per_epoch))
+        model.fit(train_set, epochs=epochs, steps_per_epoch=steps_per_epoch)
+        
+
 
         # Update progress in GUI
         self.master.update_epochs_progress(100)
