@@ -226,7 +226,7 @@ class LoadModel:
             # Send data to Arduino if self.index has changed and confidence score is >= 0.98
             if self.index != previous_index and self.confidence_score >= 0.99:
                 data = str(self.index+1).encode()
-                time.sleep(0.3)  # Additional delay of 1 second
+                time.sleep(0.5)  # Additional delay of 1 second
                 self.arduino.write(data)
                 previous_index = self.index
 
